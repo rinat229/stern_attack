@@ -4,7 +4,8 @@ project("SternAttack")
 
 # set(INCLUDE_HEADERS 
 #     "include/algebra/binary_matrix.hpp"
-#     "include/permutation_iterator.hpp"
+#     "include/permutations/primitive_permutation_iterator.hpp"
+#     "include/permutations/permutation_base.hpp"
 # )
 
 # add_library(sternAttack INTERFACE ${INCLUDE_HEADERS})

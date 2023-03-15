@@ -6,10 +6,12 @@
 
 class PrimitivePermutation: public PermutationBase {
 public:
-    PrimitivePermutation(int permSize): PermutationBase(permSize) {};
+    using PermutationBase::PermutationBase;
 
     class PrimitivePermutationIterator: public PermutationBase::PermutationBaseIterator {
     public:
+        using PermutationBase::PermutationBaseIterator::PermutationBaseIterator;
+
         PrimitivePermutationIterator& operator++() {
             std::next_permutation(permutation.begin(), permutation.end());
 
