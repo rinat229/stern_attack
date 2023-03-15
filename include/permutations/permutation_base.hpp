@@ -4,33 +4,34 @@
 #include <numeric>
 
 class PermutationBase {
-protected:
-    std::vector<unsigned int> start_permutation;
+public:
+    std::vector<unsigned> start_permutation;
 
-    PermutationBase(unsigned int permSize) {
+    PermutationBase(unsigned permSize) {
         start_permutation.resize(permSize);
         std::iota(start_permutation.begin(), start_permutation.end(), 0);
     }
 
     class PermutationBaseIterator {
     public:
-        using ValueType = std::vector<unsigned int>;
-        using PointerType = ValueType*;
+        using value_type = std::vector<unsigned>;
+        using pointer_type = value_type*;
 
-        ValueType permutation;
+        value_type permutation;
 
-        PermutationBaseIterator(const ValueType& permutation): permutation(permutation) {}
+        PermutationBaseIterator(const value_type& permutation): permutation(permutation) {}
 
-        PermutationBaseIterator(const ValueType&& permutation): permutation(std::move(permutation)) {}
+        PermutationBaseIterator(const value_type&& permutation): permutation(std::move(permutation)) {}
 
-        template <typename InputIteratorType>
-        PermutationBaseIterator(ValueType::iterator begin, ValueType::iterator end): permutation(begin, end) {}
+        template <typename InputIterator, typename = std::enable_if<std::is_same<typename InputIterator::value_type, unsigned>::value || 
+                                                                    std::is_same<typename InputIterator::value_type, int>::value> >
+        PermutationBaseIterator(InputIterator begin, InputIterator end): permutation(begin, end) {}
 
-        ValueType& operator*() {
+        value_type& operator*() {
             return permutation;
         }
 
-        PointerType operator->() {
+        pointer_type operator->() {
             return &permutation;
         }
     };
