@@ -74,3 +74,36 @@ operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
 
     return os;
 }
+
+void SwapRows(BinaryMatrix &Matrix,const int &i,const int &k) {
+    std::swap(Matrix[i], Matrix[k]);
+}
+
+void GausElimination(BinaryMatrix &Matrix) {
+    int rows = Matrix.rowsSize(); // rows = n - k
+    int columns = rows; // We need to change only right side from 0 to n - k column
+
+    // Transform to upper triangle from for right side
+    for (int i = 0; i < rows; i++) {
+        for (int j = rows - 1; j >= 0; j--) {
+            // Find not zero in column
+            if (!((bool)Matrix[i][j])) {
+                int index = -1;
+                for (int z = i + 1; z < rows; z++) {
+                    if ((bool)Matrix[z][j]) {
+                        index = z;
+                    }
+                }
+
+                // We need to check, if there are a non zero element in column
+                if (index == -1) { // Go to Next Column
+                    continue; 
+                } else { // Swipe Rows
+                    SwapRows(Matrix, i, index);
+                }
+            }
+        }
+    }
+
+    return;
+}
