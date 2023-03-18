@@ -69,7 +69,11 @@ template <typename CharT, typename Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
     for(const auto& row: b.getData()){
-        os << row << '\n';
+        for(BinaryMatrix::BitContainerType::size_type i = 0; i < row.size(); ++i){
+            std::cout << row[i];
+        }
+
+        std::cout << '\n';
     }
 
     return os;
