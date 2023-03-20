@@ -55,7 +55,7 @@ std::pair<bool, boost::dynamic_bitset<> > Step(BinaryMatrix& checkMatrix, boost:
  */
 boost::dynamic_bitset<> InformationSetDecoding(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome, unsigned omega){
     unsigned cols = checkMatrix.columnsSize();
-    unsigned p = 0.003 * cols;
+    unsigned p = static_cast<unsigned>(0.003 * cols) > 0 ? 0.003 * cols : 1;
 
     for(auto permutationIter = PrimitivePermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter) {
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);

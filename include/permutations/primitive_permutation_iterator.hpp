@@ -14,7 +14,7 @@ public:
 
         PrimitivePermutationIterator& operator++() {
             if(!std::next_permutation(permutation.begin(), permutation.end())){
-                isEnd = false;
+                notEndYet = false;
             }
 
             return *this;
