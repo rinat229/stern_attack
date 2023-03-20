@@ -8,10 +8,10 @@
 #include <algorithm>
 
 BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
-    auto inputDataForMatrix = ReadLinesFromFile("check_matrix_small.txt");
-    auto inputDataForSyndrome = ReadLinesFromFile("syndrome_small.txt");
+    auto inputDataForMatrix = ReadLinesFromFile("small/check_matrix.txt");
+    auto inputDataForSyndrome = ReadLinesFromFile("small/syndrome.txt");
 
-    BOOST_TEST(inputDataForMatrix.front().size() == inputDataForSyndrome.front().size());
+    BOOST_TEST(inputDataForMatrix.size() == inputDataForSyndrome.front().size());
 
     BinaryMatrix checkMatrix;
     for(auto& line: inputDataForMatrix) {
