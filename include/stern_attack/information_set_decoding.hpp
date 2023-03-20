@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/dynamic_bitset.hpp>
+#include <iostream>
+#include <cassert>
 
 #include <algebra/binary_matrix.hpp>
 #include <permutations/combination_iterator.hpp>
@@ -15,27 +17,31 @@
  * @param omega number of errors in codeword (i.e. number of ones in error vector)
  * @return <true, matched error vector> if success, <false, empty bitset> else
  */
-std::pair<bool, boost::dynamic_bitset<> > Step(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome, unsigned p, unsigned omega) {
-    // ...
-    // applying row elimination to check matrix and syndrome
-    // ...
+std::pair<bool, boost::dynamic_bitset<> > Step(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned p, const unsigned omega) {
+    if(!GaussElimination(checkMatrix, syndrome)){
+        return std::make_pair(false, boost::dynamic_bitset<>());
+    }
 
-    unsigned rows = checkMatrix.rowsSize();
-    unsigned cols = checkMatrix.columnsSize();
+    unsigned rows = checkMatrix.RowsSize();
+    unsigned cols = checkMatrix.ColumnsSize();
     unsigned colsSizeOfQ = cols - rows;
 
     for(auto combinationIter = Combination(p, colsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
-        if((checkMatrix.sumOfColumns(*combinationIter) ^ syndrome).count() == p){
+        if((checkMatrix.sumOfColumns(*combinationIter) ^ syndrome).count() == omega - p){
             boost::dynamic_bitset<> errorVector(cols);
 
             for(unsigned setBitIdx = 0; setBitIdx < p; ++setBitIdx) {
                 errorVector.set((*combinationIter)[setBitIdx]);
             }
 
-            unsigned idxOfOnesFromIdentityMatrix = colsSizeOfQ + omega - p;
-            for(unsigned setBitIdx = colsSizeOfQ; setBitIdx < idxOfOnesFromIdentityMatrix; ++setBitIdx) {
-                errorVector.set((*combinationIter)[setBitIdx]);
+            const auto matchedSupp = checkMatrix.sumOfColumns(*combinationIter) ^ syndrome;
+            for(boost::dynamic_bitset<>::size_type setBitIdx = 0; setBitIdx < matchedSupp.size(); ++setBitIdx) {
+                if(matchedSupp[setBitIdx]){
+                    errorVector.set(setBitIdx + colsSizeOfQ);
+                }
             }
+
+            // assert(checkMatrix.matVecMul(errorVector) == syndrome);
 
             return std::make_pair(true, errorVector);
         }
@@ -53,18 +59,24 @@ std::pair<bool, boost::dynamic_bitset<> > Step(BinaryMatrix& checkMatrix, boost:
  * @param omega number of errors in codeword (i.e. number of ones in error vector)
  * @return error vector
  */
-boost::dynamic_bitset<> InformationSetDecoding(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome, unsigned omega){
-    unsigned cols = checkMatrix.columnsSize();
+boost::dynamic_bitset<> InformationSetDecoding(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome,const unsigned omega){
+    unsigned cols = checkMatrix.ColumnsSize();
     unsigned p = static_cast<unsigned>(0.003 * cols) > 0 ? 0.003 * cols : 1;
+    boost::dynamic_bitset<> errorVector(cols);
 
     for(auto permutationIter = PrimitivePermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter) {
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
-        auto [isFinded, errorVector] = Step(permutedCheckMatrix, syndrome, p, omega);
+        auto [isFinded, permutedErrorVector] = Step(permutedCheckMatrix, syndrome, p, omega);
 
         if(isFinded) {
-            return errorVector;
+            for(unsigned idx = 0; idx < permutationIter->size(); ++idx){
+                errorVector[(*permutationIter)[idx]] = permutedErrorVector[idx];
+            }
+            assert(checkMatrix.matVecMul(errorVector) == syndrome);
+
+            break;
         }
     }
 
-    return boost::dynamic_bitset<>();
+    return errorVector;
 }

@@ -32,10 +32,10 @@ public:
     }
 
     BinaryMatrix applyPermutation(const std::vector<unsigned>& permutation) {
-        // assert(permutation.size() == columnsSize());
+        assert(permutation.size() == ColumnsSize());
 
         DataType permutedMatrix = getData();
-        const auto rows = rowsSize();
+        const auto rows = RowsSize();
 
         for(auto rowIndex = 0; rowIndex < rows; ++rowIndex) {
             for(auto colIndex = 0; colIndex < permutation.size(); ++colIndex){
@@ -46,11 +46,11 @@ public:
         return BinaryMatrix(std::move(permutedMatrix));
     }
 
-    unsigned int rowsSize() const {
+    unsigned int RowsSize() const {
         return matrix.size();
     }
 
-    unsigned int columnsSize() const {
+    unsigned int ColumnsSize() const {
         return matrix.front().size();
     }
 
@@ -67,8 +67,8 @@ public:
     }
 
     // TODO: optimize this 
-    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes) {
-        unsigned rows = rowsSize();
+    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes) const{
+        unsigned rows = RowsSize();
         boost::dynamic_bitset<> resultSum(rows);
 
         for(unsigned idxRow = 0; idxRow < rows; ++idxRow){
@@ -89,6 +89,18 @@ public:
 
     void addRow(const std::string& row){
         addRow(boost::dynamic_bitset<>(row));
+    }
+
+    boost::dynamic_bitset<> matVecMul(const boost::dynamic_bitset<>& x) const {
+        assert(x.size() == ColumnsSize());
+
+        boost::dynamic_bitset<> result(RowsSize());
+
+        for(BitContainerType::size_type row = 0; row < RowsSize(); ++row) {
+            result.set(row, (matrix[row] & x).count() % 2);
+        }
+
+        return result;
     }
 };
 
@@ -118,8 +130,8 @@ void SwapBits(boost::dynamic_bitset<> &bits, const int &i, const int &k) {
 }
 
 bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
-    int rows = Matrix.rowsSize(); // rows = n - k
-    int columns = Matrix.columnsSize(); // columns = n
+    int rows = Matrix.RowsSize(); // rows = n - k
+    int columns = Matrix.ColumnsSize(); // columns = n
     int k = columns - rows;
 
 
