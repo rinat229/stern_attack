@@ -110,31 +110,72 @@ void SwapRows(BinaryMatrix &Matrix,const int &i,const int &k) {
     std::swap(Matrix[i], Matrix[k]);
 }
 
-void GausElimination(BinaryMatrix &Matrix) {
+void SwapBits(boost::dynamic_bitset<> &bits, const int &i, const int &k) {
+    // i and k position from least bit
+    bool temp = (bool)bits[i];
+    bits[i] = bits[k];
+    bits[k] = temp; 
+}
+
+bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
     int rows = Matrix.rowsSize(); // rows = n - k
-    int columns = rows; // We need to change only right side from 0 to n - k column
+    int columns = Matrix.columnsSize(); // columns = n
+    int k = columns - rows;
+
 
     // Transform to upper triangle from for right side
-    for (int i = 0; i < rows; i++) {
-        for (int j = rows - 1; j >= 0; j--) {
-            // Find not zero in column
-            if (!((bool)Matrix[i][j])) {
-                int index = -1;
-                for (int z = i + 1; z < rows; z++) {
-                    if ((bool)Matrix[z][j]) {
-                        index = z;
-                    }
-                }
-
-                // We need to check, if there are a non zero element in column
-                if (index == -1) { // Go to Next Column
-                    continue; 
-                } else { // Swipe Rows
-                    SwapRows(Matrix, i, index);
-                }
+    int i = 0;
+    for (int j = k; j < columns; j++) {
+        std::vector<int> pos; // Find ALl pos where 1 
+        for (int z = i + 1; z < rows; z++) {
+            if ((bool)Matrix[z][j]) {
+                pos.push_back(z);                
             }
         }
+
+
+        // Find zero in column
+        if (!((bool)Matrix[i][j])) {
+
+            // We need to check, if there are a non zero element in column
+            if (pos.empty()) { // Go to Next Column
+                i++;
+                continue; 
+            } else { // Swipe Rows
+                SwapRows(Matrix, i, pos.back());
+                SwapBits(syndrom, i, pos.back());
+                pos.pop_back();
+            } 
+        }
+
+
+        for (int k = 0; k < pos.size(); k++) {
+            Matrix[pos[k]] = Matrix[i] ^ Matrix[pos[k]];
+            syndrom[pos[k]] = syndrom[i] ^ syndrom[pos[k]];
+        }
+        i++;
+    }
+    
+    bool det = 1;
+    for (i = 0; i < rows; i++) {
+        det = ((bool)Matrix[i][k + i] && det);
     }
 
-    return;
+    if (!det) { // if det == 0
+        return false;
+    }
+
+    i = rows - 1; // last row
+    for (int j = columns - 1; j >= k; j--) {
+        for (int z = i - 1; z >= 0; z--) {
+            if ((bool)Matrix[z][j]) {
+                Matrix[z] = Matrix[z] ^ Matrix[i];
+                syndrom[z] = syndrom[z] ^ syndrom[i];
+            }
+        }
+        i--;
+    }
+
+    return true;
 }
+
