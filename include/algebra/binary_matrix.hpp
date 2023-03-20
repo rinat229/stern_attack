@@ -17,6 +17,8 @@ private:
 
 
 public:
+    BinaryMatrix() = default;
+
     BinaryMatrix(const DataType& data): matrix(data) {}
 
     BinaryMatrix(const DataType&& data): matrix(std::move(data)) {}
@@ -29,7 +31,7 @@ public:
         }
     }
 
-    BinaryMatrix applyPermutation(const std::vector<int>& permutation) {
+    BinaryMatrix applyPermutation(const std::vector<unsigned>& permutation) {
         // assert(permutation.size() == columnsSize());
 
         DataType permutedMatrix = getData();
@@ -63,13 +65,42 @@ public:
     bool operator==(const BinaryMatrix& rhs){
         return rhs.matrix == matrix;
     }
+
+    // TODO: optimize this 
+    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes) {
+        unsigned rows = rowsSize();
+        boost::dynamic_bitset<> resultSum(rows);
+
+        for(unsigned idxRow = 0; idxRow < rows; ++idxRow){
+            bool resultForRow = 0;
+            for(auto& idxCol: indexes){
+                resultForRow ^= matrix[idxRow][idxCol];
+            }
+
+            resultSum[idxRow] = resultForRow;
+        }
+
+        return resultSum;
+    }
+
+    void addRow(const boost::dynamic_bitset<>& row) {
+        matrix.push_back(row);
+    }
+
+    void addRow(const std::string& row){
+        addRow(boost::dynamic_bitset<>(row));
+    }
 };
 
 template <typename CharT, typename Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
     for(const auto& row: b.getData()){
-        os << row << '\n';
+        for(BinaryMatrix::BitContainerType::size_type i = 0; i < row.size(); ++i){
+            os << row[i];
+        }
+
+        os << '\n';
     }
 
     return os;

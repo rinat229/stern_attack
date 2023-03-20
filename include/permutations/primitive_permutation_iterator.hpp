@@ -13,7 +13,9 @@ public:
         using PermutationBase::PermutationBaseIterator::PermutationBaseIterator;
 
         PrimitivePermutationIterator& operator++() {
-            std::next_permutation(permutation.begin(), permutation.end());
+            if(!std::next_permutation(permutation.begin(), permutation.end())){
+                isEnd = false;
+            }
 
             return *this;
         }
@@ -24,26 +26,9 @@ public:
 
             return temp;
         }
-
-        PrimitivePermutationIterator& operator--() {
-            std::prev_permutation(permutation.begin(), permutation.end());
-
-            return *this;
-        }
-
-        PrimitivePermutationIterator operator--(int) {
-            PrimitivePermutationIterator temp = *this;
-            --(*this);
-
-            return temp;
-        }
     };
 
     PrimitivePermutationIterator begin() {
         return PrimitivePermutationIterator(start_permutation);
-    }
-
-    PrimitivePermutationIterator end() {
-        return PrimitivePermutationIterator(start_permutation.rbegin(), start_permutation.rend());
     }
 };  

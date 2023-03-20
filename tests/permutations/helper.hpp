@@ -10,7 +10,6 @@ namespace std{
         for(const auto& value: b){
             os << value << ' ';
         }
-        os << '\n';
 
         return os;
     }

@@ -18,6 +18,7 @@ public:
         using pointer_type = value_type*;
 
         value_type permutation;
+        bool isEnd = true;
 
         PermutationBaseIterator(const value_type& permutation): permutation(permutation) {}
 
@@ -33,6 +34,18 @@ public:
 
         pointer_type operator->() {
             return &permutation;
+        }
+
+        bool operator==(const PermutationBaseIterator& other){
+            return other.permutation == permutation;
+        }
+
+        bool operator!=(const PermutationBaseIterator& other){
+            return other.permutation != permutation;
+        }
+
+        bool CanBePermuted(){
+            return isEnd;
         }
     };
 };
