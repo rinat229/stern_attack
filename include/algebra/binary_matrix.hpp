@@ -88,12 +88,13 @@ void SwapBits(boost::dynamic_bitset<> &bits, const int &i, const int &k) {
 
 bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
     int rows = Matrix.rowsSize(); // rows = n - k
-    int columns = rows; // We need to change only right side from 0 to n - k column
+    int columns = Matrix.columnsSize(); // columns = n
+    int k = columns - rows;
 
 
     // Transform to upper triangle from for right side
     int i = 0;
-    for (int j = columns - 1; j >= 0; j--) {
+    for (int j = k; j < columns; j++) {
         std::vector<int> pos; // Find ALl pos where 1 
         for (int z = i + 1; z < rows; z++) {
             if ((bool)Matrix[z][j]) {
@@ -111,7 +112,7 @@ bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
                 continue; 
             } else { // Swipe Rows
                 SwapRows(Matrix, i, pos.back());
-                SwapBits(syndrom, rows - 1 - i, rows - 1 - pos.back());
+                SwapBits(syndrom, i, pos.back());
                 pos.pop_back();
             } 
         }
@@ -119,14 +120,14 @@ bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
 
         for (int k = 0; k < pos.size(); k++) {
             Matrix[pos[k]] = Matrix[i] ^ Matrix[pos[k]];
-            syndrom[rows - 1 - pos[k]] = syndrom[rows - 1 - i] ^ syndrom[rows - 1 - pos[k]];
+            syndrom[pos[k]] = syndrom[i] ^ syndrom[pos[k]];
         }
         i++;
     }
     
     bool det = 1;
     for (i = 0; i < rows; i++) {
-        det = ((bool)Matrix[i][columns - 1 - i] && det);
+        det = ((bool)Matrix[i][k + i] && det);
     }
 
     if (!det) { // if det == 0
@@ -134,11 +135,11 @@ bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
     }
 
     i = rows - 1; // last row
-    for (int j = 0; j < columns; j++) {
+    for (int j = columns - 1; j >= k; j--) {
         for (int z = i - 1; z >= 0; z--) {
             if ((bool)Matrix[z][j]) {
                 Matrix[z] = Matrix[z] ^ Matrix[i];
-                syndrom[rows - 1 - z] = syndrom[rows - 1 -z] ^ syndrom[rows - 1 - i];
+                syndrom[z] = syndrom[z] ^ syndrom[i];
             }
         }
         i--;
