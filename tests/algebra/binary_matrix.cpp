@@ -93,3 +93,16 @@ BOOST_AUTO_TEST_CASE(SumOfColumns) {
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 2}), boost::dynamic_bitset<>(std::string("11010")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({1}), boost::dynamic_bitset<>(std::string("11101")));
 }
+
+BOOST_AUTO_TEST_CASE(MatVecMul) {
+    BinaryMatrix matrix = BinaryMatrix({
+        std::string("0101"),
+        std::string("1000"),
+        std::string("1110"),
+        std::string("0111"),
+        std::string("0111"),
+    });
+
+    boost::dynamic_bitset<> vec(std::string("1110"));
+    BOOST_TEST(matrix.matVecMul(vec) == boost::dynamic_bitset<>(std::string("00111")));
+}
