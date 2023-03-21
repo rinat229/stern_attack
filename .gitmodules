@@ -1,0 +1,3 @@
+[submodule "tests/test_data/mceliece"]
+	path = tests/test_data/mceliece
+	url = git@github.com:rinat229/mceliece.git
