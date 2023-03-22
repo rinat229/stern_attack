@@ -2,11 +2,14 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
+#include <random>
+#include <algorithm>
 #include <cassert>
 
 #include <algebra/binary_matrix.hpp>
 #include <permutations/combination_iterator.hpp>
 #include <permutations/primitive_permutation_iterator.hpp>
+#include <permutations/random_permutation_iterator.hpp>
 
 
 /**
@@ -64,7 +67,7 @@ boost::dynamic_bitset<> InformationSetDecoding(BinaryMatrix& checkMatrix, boost:
     unsigned p = static_cast<unsigned>(0.003 * cols) > 0 ? 0.003 * cols : 1;
     boost::dynamic_bitset<> errorVector(cols);
 
-    for(auto permutationIter = PrimitivePermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter) {
+    for(auto permutationIter = RandomPermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter) {
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
         auto [isFinded, permutedErrorVector] = Step(permutedCheckMatrix, syndrome, p, omega);
 
