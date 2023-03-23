@@ -1,6 +1,6 @@
-#define BOOST_TEST_MODULE PrimitivePermutationModule
+#define BOOST_TEST_MODULE InformationSetDecoding
 #define NUMBER_OF_SMALL_TEST_CASES 2
-#define NUMBER_OF_MEDIUM_TEST_CASES 2
+#define NUMBER_OF_MEDIUM_TEST_CASES 4
 
 #include <algebra/binary_matrix.hpp>
 #include <stern_attack/information_set_decoding.hpp>
@@ -8,11 +8,17 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <algorithm>
+#include <map>
+
 
 BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
-    unsigned omega = 2;
+    std::map<int, int> numberOfErrors = {
+        {1, 2},
+        {2, 2},
+    };
 
     for(int i = 1; i <= NUMBER_OF_SMALL_TEST_CASES; ++i){
+        unsigned omega = numberOfErrors[i];
         std::string nameOfDirectory("small");
         nameOfDirectory += std::to_string(i) + "/";
         auto inputDataForMatrix = ReadLinesFromFile(nameOfDirectory + "check_matrix.txt");
@@ -40,9 +46,18 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
 }
 
 BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
-    unsigned omega = 2;
+    std::map<int, int> numberOfErrors = {
+        {1, 2},
+        {2, 4},
+        {3, 6},
+        {4, 7},
+    };
 
     for(int i = 1; i <= NUMBER_OF_MEDIUM_TEST_CASES; ++i){
+        BOOST_CHECK(numberOfErrors.find(i) != numberOfErrors.end());
+
+        unsigned omega = numberOfErrors[i];
+
         std::string nameOfDirectory("medium");
         nameOfDirectory += std::to_string(i) + "/";
         auto inputDataForMatrix = ReadLinesFromFile(nameOfDirectory + "check_matrix.txt");
