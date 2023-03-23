@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE PrimitivePermutationModule
 #define NUMBER_OF_SMALL_TEST_CASES 2
-#define NUMBER_OF_MEDIUM_TEST_CASES 1
+#define NUMBER_OF_MEDIUM_TEST_CASES 2
 
 #include <algebra/binary_matrix.hpp>
 #include <stern_attack/information_set_decoding.hpp>
