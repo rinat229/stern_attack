@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cassert>
+#include <optional>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -67,8 +68,8 @@ public:
     }
 
     // TODO: optimize this 
-    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes) const{
-        unsigned rows = RowsSize();
+    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const std::optional<unsigned>& l = std::nullopt) const{
+        unsigned rows = l ? *l : RowsSize();
         boost::dynamic_bitset<> resultSum(rows);
 
         for(unsigned idxRow = 0; idxRow < rows; ++idxRow){
@@ -118,20 +119,10 @@ operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
     return os;
 }
 
-void SwapRows(BinaryMatrix &Matrix,const int &i,const int &k) {
-    std::swap(Matrix[i], Matrix[k]);
-}
 
-void SwapBits(boost::dynamic_bitset<> &bits, const int &i, const int &k) {
-    // i and k position from least bit
-    bool temp = (bool)bits[i];
-    bits[i] = bits[k];
-    bits[k] = temp; 
-}
-
-bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
-    int rows = Matrix.RowsSize(); // rows = n - k
-    int columns = Matrix.ColumnsSize(); // columns = n
+bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
+    int rows = matrix.RowsSize(); // rows = n - k
+    int columns = matrix.ColumnsSize(); // columns = n
     int k = columns - rows;
 
 
@@ -140,37 +131,38 @@ bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
     for (int j = k; j < columns; j++) {
         std::vector<int> pos; // Find ALl pos where 1 
         for (int z = i + 1; z < rows; z++) {
-            if ((bool)Matrix[z][j]) {
+            if ((bool)matrix[z][j]) {
                 pos.push_back(z);                
             }
         }
 
-
         // Find zero in column
-        if (!((bool)Matrix[i][j])) {
+        if (!((bool)matrix[i][j])) {
 
             // We need to check, if there are a non zero element in column
             if (pos.empty()) { // Go to Next Column
                 i++;
                 continue; 
             } else { // Swipe Rows
-                SwapRows(Matrix, i, pos.back());
-                SwapBits(syndrom, i, pos.back());
+                std::swap(matrix[i], matrix[pos.back()]);
+
+                bool temp = (bool)syndrome[i];
+                syndrome[i] = syndrome[pos.back()];
+                syndrome[pos.back()] = temp; 
                 pos.pop_back();
             } 
         }
 
-
         for (int k = 0; k < pos.size(); k++) {
-            Matrix[pos[k]] = Matrix[i] ^ Matrix[pos[k]];
-            syndrom[pos[k]] = syndrom[i] ^ syndrom[pos[k]];
+            matrix[pos[k]] = matrix[i] ^ matrix[pos[k]];
+            syndrome[pos[k]] = syndrome[i] ^ syndrome[pos[k]];
         }
         i++;
     }
     
     bool det = 1;
     for (i = 0; i < rows; i++) {
-        det = ((bool)Matrix[i][k + i] && det);
+        det = ((bool)matrix[i][k + i] && det);
     }
 
     if (!det) { // if det == 0
@@ -180,9 +172,9 @@ bool GaussElimination(BinaryMatrix &Matrix, boost::dynamic_bitset<> &syndrom) {
     i = rows - 1; // last row
     for (int j = columns - 1; j >= k; j--) {
         for (int z = i - 1; z >= 0; z--) {
-            if ((bool)Matrix[z][j]) {
-                Matrix[z] = Matrix[z] ^ Matrix[i];
-                syndrom[z] = syndrom[z] ^ syndrom[i];
+            if ((bool)matrix[z][j]) {
+                matrix[z] = matrix[z] ^ matrix[i];
+                syndrome[z] = syndrome[z] ^ syndrome[i];
             }
         }
         i--;
