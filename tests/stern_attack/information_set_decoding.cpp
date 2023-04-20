@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
 
 BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
     std::map<int, int> numberOfErrors = {
-        // {1, 12},
-        // {2, 15},
+        {1, 12},
+        {2, 15},
     };
 
     for(const auto& [i, omega]: numberOfErrors){
@@ -125,7 +125,8 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
         std::reverse(inputDataForErrorVector.front().begin(), inputDataForErrorVector.front().end());
         boost::dynamic_bitset<> errorVector(inputDataForErrorVector.front());
         auto begin = std::chrono::steady_clock::now();
-        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecodingStep);
+        // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecodingStep);
+        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithmStep);
         auto end = std::chrono::steady_clock::now();
 
         // auto begin_parallel = std::chrono::steady_clock::now();
@@ -135,6 +136,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
         // std::cout << "Time default algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
         // std::cout << "Time parallel algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end_parallel - begin_parallel).count() << std::endl;
 
-        BOOST_TEST(errorVector == errorVectorFromISD);
+        // BOOST_TEST(errorVector == errorVectorFromISD);
+        BOOST_TEST(errorVector == errorVectorFromStern);
     }
 } 

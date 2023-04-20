@@ -48,8 +48,6 @@ std::optional<boost::dynamic_bitset<>> InformationSetDecodingStep(BinaryMatrix& 
                 }
             }
 
-            // assert(checkMatrix.matVecMul(errorVector) == syndrome);
-
             return std::optional<boost::dynamic_bitset<>>(errorVector);
         }
     }
