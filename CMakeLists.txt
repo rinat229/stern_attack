@@ -1,13 +1,7 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
 project("SternAttack")
 
-# set(INCLUDE_HEADERS 
-#     "include/algebra/binary_matrix.hpp"
-#     "include/permutations/primitive_permutation_iterator.hpp"
-#     "include/permutations/permutation_base.hpp"
-# )
 
-# add_library(sternAttack INTERFACE ${INCLUDE_HEADERS})
-
+find_package(Boost COMPONENTS thread REQUIRED)
 add_subdirectory(tests)

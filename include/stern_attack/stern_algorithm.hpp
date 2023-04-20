@@ -10,6 +10,7 @@
 #include <permutations/combination_iterator.hpp>
 #include <permutations/primitive_permutation_iterator.hpp>
 #include <permutations/random_permutation_iterator.hpp>
+#include <utils/cartesian_product.hpp>
 #include "base_decoding.hpp"
 
 /**
@@ -27,16 +28,19 @@ std::optional<boost::dynamic_bitset<>> SternAlgorithmStep(BinaryMatrix& checkMat
 
     unsigned rows = checkMatrix.RowsSize();
     unsigned cols = checkMatrix.ColumnsSize();
-    unsigned colsSizeOfQ = (cols - rows) / 2;
-    std::vector<std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>> projectedSum1, projectedSum2;
+    unsigned colsSizeOfQ = cols - rows;
+    unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
+    using CollisionType = std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>;
+
+    std::vector<CollisionType> projectedSum1, projectedSum2;
     boost::dynamic_bitset<> projectedSyndrome = Projection(syndrome, l);
 
-    for(auto combinationIter = Combination(p, colsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
+    for(auto combinationIter = Combination(p, halfColsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
         projectedSum1.emplace_back(checkMatrix.sumOfColumns(*combinationIter, std::make_optional(l)), *combinationIter);
 
         std::vector<unsigned> shiftedCombination = *combinationIter;
-        std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&colsSizeOfQ](auto& element){
-            element += colsSizeOfQ;
+        std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&halfColsSizeOfQ](auto& element){
+            element += halfColsSizeOfQ;
         });
 
         projectedSum2.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, std::make_optional(l)) ^ projectedSyndrome, shiftedCombination);
@@ -51,30 +55,43 @@ std::optional<boost::dynamic_bitset<>> SternAlgorithmStep(BinaryMatrix& checkMat
         } else if(iter1->first > iter2->first) {
             ++iter2;
         } else {
-            if((checkMatrix.sumOfColumns(iter1->second) ^ checkMatrix.sumOfColumns(iter2->second) ^ syndrome).count() == omega - 2 * p) {
-                std::cout << (checkMatrix.sumOfColumns(iter1->second, std::optional(l)) ^ checkMatrix.sumOfColumns(iter2->second, std::optional(l)) ^ projectedSyndrome) << '\n';
-                boost::dynamic_bitset<> errorVector(cols);
+            auto iterEnd1 = std::find_if(iter1, projectedSum1.end(), [&iter1] (auto &iter) {
+                return iter.first != iter1->first;
+            });
 
-                for(unsigned setBitIdx = 0; setBitIdx < p; ++setBitIdx) {
-                    errorVector.set(iter1->second[setBitIdx]);
-                }
+            auto iterEnd2 = std::find_if(iter2, projectedSum2.end(), [&iter2] (auto &iter) {
+                return iter.first != iter2->first;
+            });
 
-                for(unsigned setBitIdx = 0; setBitIdx < p; ++setBitIdx) {
-                    errorVector.set(iter2->second[setBitIdx]);
-                }
+            std::vector<std::tuple<CollisionType, CollisionType>> matchedResults;
+            cartesian_product(
+                std::back_inserter(matchedResults),
+                std::make_pair(iter1, iterEnd1),
+                std::make_pair(iter2, iterEnd2)
+            );
 
-                const auto matchedSupp = checkMatrix.sumOfColumns(iter1->second) ^ checkMatrix.sumOfColumns(iter2->second) ^ syndrome;
-                for(boost::dynamic_bitset<>::size_type setBitIdx = 0; setBitIdx < matchedSupp.size(); ++setBitIdx) {
-                    if(matchedSupp[setBitIdx]){
-                        errorVector.set(setBitIdx + colsSizeOfQ);
+            for(const auto&[iter1, iter2] : matchedResults){
+                if((checkMatrix.sumOfColumns(iter1.second) ^ checkMatrix.sumOfColumns(iter2.second) ^ syndrome).count() == omega - 2 * p) {
+                    boost::dynamic_bitset<> errorVector(cols);
+
+                    for(unsigned setBitIdx = 0; setBitIdx < p; ++setBitIdx) {
+                        errorVector.set(iter1.second[setBitIdx]);
+                        errorVector.set(iter2.second[setBitIdx]);
                     }
-                }
 
-                return std::optional<boost::dynamic_bitset<>>(errorVector);
-            } else {
-                ++iter1;
-                ++iter2;
+                    const auto matchedSupp = checkMatrix.sumOfColumns(iter1.second) ^ checkMatrix.sumOfColumns(iter2.second) ^ syndrome;
+                    for(boost::dynamic_bitset<>::size_type setBitIdx = 0; setBitIdx < matchedSupp.size(); ++setBitIdx) {
+                        if(matchedSupp[setBitIdx]){
+                            errorVector.set(setBitIdx + colsSizeOfQ);
+                        }
+                    }
+
+                    return std::optional<boost::dynamic_bitset<>>(errorVector);
+                }
             }
+
+            iter1 = iterEnd1;
+            iter2 = iterEnd2;
         }
     }
 
