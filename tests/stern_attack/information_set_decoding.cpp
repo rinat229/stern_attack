@@ -42,9 +42,11 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
 
         std::reverse(inputDataForErrorVector.front().begin(), inputDataForErrorVector.front().end());
         boost::dynamic_bitset<> errorVector(inputDataForErrorVector.front());
+
+
         auto begin = std::chrono::steady_clock::now();
-        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecodingStep);
-        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithmStep);
+        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
         
         BOOST_TEST(errorVector == errorVectorFromISD);
         BOOST_TEST(errorVector == errorVectorFromStern);
@@ -81,9 +83,12 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
 
         std::reverse(inputDataForErrorVector.front().begin(), inputDataForErrorVector.front().end());
         boost::dynamic_bitset<> errorVector(inputDataForErrorVector.front());
+
         auto begin = std::chrono::steady_clock::now();
-        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecodingStep);
-        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithmStep);
+
+        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+
         auto end = std::chrono::steady_clock::now();
         // auto begin_parallel = std::chrono::steady_clock::now();
         // boost::dynamic_bitset<> errorVectorFromISDParallel = InformationSetDecodingParallel(checkMatrix, syndrome, omega, 5);
@@ -124,9 +129,11 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
 
         std::reverse(inputDataForErrorVector.front().begin(), inputDataForErrorVector.front().end());
         boost::dynamic_bitset<> errorVector(inputDataForErrorVector.front());
+
         auto begin = std::chrono::steady_clock::now();
-        // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecodingStep);
-        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithmStep);
+        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+
         auto end = std::chrono::steady_clock::now();
 
         // auto begin_parallel = std::chrono::steady_clock::now();
