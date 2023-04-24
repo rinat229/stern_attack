@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE(SumOfColumns) {
     });
 
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1, 2}), boost::dynamic_bitset<>(std::string("00111")));
-    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1, 2}, std::make_optional<unsigned>(3)), boost::dynamic_bitset<>(std::string("111")));
-    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1}, std::make_optional<unsigned>(matrix.RowsSize()), 1), boost::dynamic_bitset<>(std::string("11011")));
+    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1, 2}, 3), boost::dynamic_bitset<>(std::string("111")));
+    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1}, matrix.RowsSize()), boost::dynamic_bitset<>(std::string("11011")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 2}), boost::dynamic_bitset<>(std::string("11010")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({1}), boost::dynamic_bitset<>(std::string("11101")));
 }

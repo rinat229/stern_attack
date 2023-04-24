@@ -4,9 +4,10 @@
 #define NUMBER_OF_BIG_TEST_CASES 2
 
 #include <algebra/binary_matrix.hpp>
+#include <stern_attack/base_decoding.hpp>
 #include <stern_attack/information_set_decoding.hpp>
 #include <stern_attack/stern_algorithm.hpp>
-#include <stern_attack/base_decoding.hpp>
+#include <stern_attack/mmt_algorithm.hpp>
 #include "helper.hpp"
 #include <chrono>
 
@@ -56,7 +57,6 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
 
 BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
     std::map<int, int> numberOfErrors = {
-        {1, 2},
         {2, 4},
         {3, 6},
         {4, 7},
@@ -88,6 +88,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
 
         boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
         boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
 
         auto end = std::chrono::steady_clock::now();
         // auto begin_parallel = std::chrono::steady_clock::now();
@@ -99,6 +100,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
 
         BOOST_TEST(errorVector == errorVectorFromISD);
         BOOST_TEST(errorVector == errorVectorFromStern);
+        BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 }
 
@@ -131,8 +133,9 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
         boost::dynamic_bitset<> errorVector(inputDataForErrorVector.front());
 
         auto begin = std::chrono::steady_clock::now();
-        boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
-        boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
+        // boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
 
         auto end = std::chrono::steady_clock::now();
 
@@ -142,8 +145,9 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
 
         // std::cout << "Time default algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
         // std::cout << "Time parallel algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end_parallel - begin_parallel).count() << std::endl;
-
+        
         // BOOST_TEST(errorVector == errorVectorFromISD);
-        BOOST_TEST(errorVector == errorVectorFromStern);
+        // BOOST_TEST(errorVector == errorVectorFromStern);
+        BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 } 

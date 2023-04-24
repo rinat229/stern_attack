@@ -12,8 +12,6 @@
 
 #include <algebra/binary_matrix.hpp>
 #include <permutations/combination_iterator.hpp>
-#include <permutations/primitive_permutation_iterator.hpp>
-#include <permutations/random_permutation_iterator.hpp>
 #include "base_decoding.hpp"
 
 
@@ -21,6 +19,8 @@ class InformationSetDecoding {
     int p;
 
 public:
+    constexpr static const char* algorithmName = "InformationSetDecoding";
+
     /**
      * Creates an options object for ISD algorithm
      * @param cols number of columns in matrix, %p will initialize as 0.003 * cols (it's optimal parameter)
@@ -35,7 +35,6 @@ public:
      * Makes one step of information-set decoding to already permuted check matrix
      * @param checkMatrix binary permuted check matrix for which gauss elimination should be applied
      * @param syndrome syndrome vector 
-     * @param p number of columns that should be summed
      * @param omega number of errors in codeword (i.e. number of ones in error vector)
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */

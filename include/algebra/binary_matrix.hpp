@@ -68,11 +68,26 @@ public:
     }
 
     // TODO: optimize this 
-    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const std::optional<unsigned>& l = std::nullopt) const{
-        unsigned rows = l ? *l : RowsSize();
+    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
+        unsigned rows = endRow == 0 ? RowsSize() : endRow;
         boost::dynamic_bitset<> resultSum(rows);
 
         for(unsigned idxRow = 0; idxRow < rows; ++idxRow){
+            bool resultForRow = 0;
+            for(auto& idxCol: indexes){
+                resultForRow ^= matrix[idxRow][idxCol];
+            }
+
+            resultSum[idxRow] = resultForRow;
+        }
+
+        return resultSum;
+    }
+
+    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned startRow, const unsigned endRow) const {
+        boost::dynamic_bitset<> resultSum(endRow - startRow);
+
+        for(unsigned idxRow = startRow; idxRow < endRow; ++idxRow) {
             bool resultForRow = 0;
             for(auto& idxCol: indexes){
                 resultForRow ^= matrix[idxRow][idxCol];
