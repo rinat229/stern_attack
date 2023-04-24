@@ -1,6 +1,6 @@
 # stern_attack
 
-For speed, it's needed to compile with optimizations flag:
+For speed, it's needed to build under release:
 ```bash
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 ```

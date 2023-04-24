@@ -22,7 +22,7 @@ class MMTAlgorithm {
 
 public:
     constexpr static const char* algorithmName = "MMT";
-    
+
     /**
      * Creates an options object for MMT algorithm
      * @param cols number of columns in matrix, p initializes as 0.006 * cols (it's optimal parameter)
@@ -59,7 +59,7 @@ public:
         std::vector<CollisionType> projectedSum21, projectedSum22;
 
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
-        boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l1, l);
+        boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
         for(auto combinationIter = Combination(p, halfColsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
             /// TODO: projectedSum11 == projectedSum21 ???

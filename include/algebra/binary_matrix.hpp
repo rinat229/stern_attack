@@ -104,7 +104,7 @@ public:
     }
 
     void addRow(const std::string& row){
-        addRow(boost::dynamic_bitset<>(row));
+        addRow(std::move(boost::dynamic_bitset<>(row)));
     }
 
     boost::dynamic_bitset<> matVecMul(const boost::dynamic_bitset<>& x) const {
