@@ -16,7 +16,7 @@ def compute_syndrome(input_matrix_text, input_codeword_text) -> str:
 if __name__ == "__main__":
     parser = ArgumentParser(
         prog='Generating syndrome',
-        description="example:\n./gen_syndrome.py small/check_matrix.txt small/codeword.txt small/syndrome.txt"
+        description="example:\n./compute_syndrome.py small/check_matrix.txt small/codeword.txt small/syndrome.txt"
     )
 
     parser.add_argument("input_matrix")
