@@ -169,8 +169,8 @@ bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
         }
 
         for (int k = 0; k < pos.size(); k++) {
-            matrix[pos[k]] = matrix[i] ^ matrix[pos[k]];
-            syndrome[pos[k]] = syndrome[i] ^ syndrome[pos[k]];
+            matrix[pos[k]] ^= matrix[i];
+            syndrome[pos[k]] ^= syndrome[i];
         }
         i++;
     }
@@ -188,8 +188,8 @@ bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
     for (int j = columns - 1; j >= k; j--) {
         for (int z = i - 1; z >= 0; z--) {
             if ((bool)matrix[z][j]) {
-                matrix[z] = matrix[z] ^ matrix[i];
-                syndrome[z] = syndrome[z] ^ syndrome[i];
+                matrix[z] ^= matrix[i];
+                syndrome[z] ^= syndrome[i];
             }
         }
         i--;
