@@ -19,10 +19,12 @@ class SternAlgorithm {
     int l;
 
 public:
+    constexpr static const char* algorithmName = "Stern";
+
     /**
-     * Creates an options object for Stern algorithm
-     * @param cols number of columns in matrix, %p will initialize as 0.003 * cols
-     * %l as 0.013 * cols  (it's optimal parameters)
+     * Creates an object for Stern algorithm
+     * @param cols number of columns in matrix, p will initialize as 0.003 * cols
+     * l as 0.013 * cols  (it's optimal parameters)
     */
     SternAlgorithm(unsigned cols) : p(static_cast<unsigned>(0.003 * cols) > 0 ? 0.003 * cols : 1),
                                 l(static_cast<unsigned>(0.013 * cols) > 0 ? 0.013 * cols : 1) {}
@@ -35,7 +37,6 @@ public:
      * Makes one step of Stern algorithm to already permuted check matrix
      * @param checkMatrix binary permuted check matrix for which gauss elimination should be applied
      * @param syndrome syndrome vector 
-     * @param p number of columns that should be summed
      * @param omega number of errors in codeword (i.e. number of ones in error vector)
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
@@ -55,15 +56,16 @@ public:
         boost::dynamic_bitset<> projectedSyndrome = Projection(syndrome, l);
 
         for(auto combinationIter = Combination(p, halfColsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
-            projectedSum1.emplace_back(checkMatrix.sumOfColumns(*combinationIter, std::make_optional(l)), *combinationIter);
+            projectedSum1.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l), *combinationIter);
 
             std::vector<unsigned> shiftedCombination = *combinationIter;
             std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&halfColsSizeOfQ](auto& element){
                 element += halfColsSizeOfQ;
             });
 
-            projectedSum2.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, std::make_optional(l)) ^ projectedSyndrome, shiftedCombination);
+            projectedSum2.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, l) ^ projectedSyndrome, shiftedCombination);
         }
+
 
         std::sort(projectedSum1.begin(), projectedSum1.end());
         std::sort(projectedSum2.begin(), projectedSum2.end());

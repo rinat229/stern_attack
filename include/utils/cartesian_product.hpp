@@ -8,8 +8,8 @@ namespace detail {
 template<class Op>
 void insert_tuples(Op op)
 {
-        // evaluating the lambda will insert the currently bound tuple
-        op();
+    // evaluating the lambda will insert the currently bound tuple
+    op();
 }
 
 // "peal off" the first range from the remaining tuple of ranges
@@ -39,3 +39,10 @@ void cartesian_product(OutputIterator result, std::pair<InputIterator, InputIter
                  dimensions...
         );
 }
+
+template<typename FirstContainerType, typename SecondContainerType>
+class CartesianProductOf2 {
+        using FirstValueType = typename FirstContainerType::value_type;
+        using SecondValueType = typename SecondContainerType::value_type;
+
+};
