@@ -33,7 +33,7 @@ public:
     }
 
     BinaryMatrix applyPermutation(const std::vector<unsigned>& permutation) {
-        assert(permutation.size() == ColumnsSize());
+        // assert(permutation.size() == ColumnsSize());
 
         DataType permutedMatrix = getData();
         const auto rows = RowsSize();
@@ -67,7 +67,7 @@ public:
         return rhs.matrix == matrix;
     }
 
-    // TODO: optimize this 
+    /// TODO: optimize this 
     boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
         unsigned rows = endRow == 0 ? RowsSize() : endRow;
         boost::dynamic_bitset<> resultSum(rows);

@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(Big) {
         auto begin = std::chrono::steady_clock::now();
         // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
         // boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
-        // boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
+        boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
 
         auto end = std::chrono::steady_clock::now();
 
@@ -151,6 +151,6 @@ BOOST_AUTO_TEST_CASE(Big) {
         
         // BOOST_TEST(errorVector == errorVectorFromISD);
         // BOOST_TEST(errorVector == errorVectorFromStern);
-        // BOOST_TEST(errorVector == errorVectorFromMMT);
+        BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 } 

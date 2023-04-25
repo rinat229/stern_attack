@@ -16,12 +16,17 @@ public:
     class RandomPermutationIterator: public PermutationBase::PermutationBaseIterator {
         unsigned changeableSize;
         unsigned leftPermsNumber = 1;
-        std::mt19937 g;
         bool rightPartWasChanged = true;
+        value_type leftPermutation, tempContainer;
+        std::mt19937 g;
 
     public:
         RandomPermutationIterator(const value_type& permutation, unsigned changeableSize): PermutationBase::PermutationBaseIterator(permutation), 
-                                                                                            g(std::random_device()()), changeableSize(changeableSize) {}
+                                                                                            g(std::random_device()()), changeableSize(changeableSize),
+                                                                                            leftPermutation(changeableSize), tempContainer(changeableSize)
+        {
+            std::iota(leftPermutation.begin(), leftPermutation.end(), 0);
+        }
 
         RandomPermutationIterator& operator++() {
             if(leftPermsNumber == changeableSize){
@@ -30,7 +35,13 @@ public:
                 leftPermsNumber = 1;
             } else {
                 rightPartWasChanged = false;
-                std::shuffle(permutation.begin(), permutation.begin() + changeableSize, g);
+                std::shuffle(leftPermutation.begin(), leftPermutation.end(), g);
+                std::copy(permutation.begin(), permutation.begin() + changeableSize, tempContainer.begin());
+
+                for(unsigned idx = 0; idx < changeableSize; ++idx) {
+                    permutation[idx] = tempContainer[leftPermutation[idx]];
+                }
+                // std::shuffle(permutation.begin(), permutation.begin() + changeableSize, g);
                 ++leftPermsNumber;
             }
 
@@ -46,6 +57,10 @@ public:
 
         bool RightPartWasChanged() const {
             return rightPartWasChanged;
+        }
+
+        const value_type& GetLeftPermutation() const {
+            return leftPermutation;
         }
     };
 
