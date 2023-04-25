@@ -74,12 +74,15 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
     boost::dynamic_bitset<> copiedSyndrome;
 
     for(auto permutationIter = RandomPermutation(cols, cols - rows).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
-        permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
-
+        // permutedCheckMatrix = (permutationIter.RightPartWasChanged() ? checkMatrix : permutedCheckMatrix).applyPermutation(*permutationIter);
+        
         if(permutationIter.RightPartWasChanged()) {
+            permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
             copiedSyndrome = syndrome;
             eliminationWasSuccesful = algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome);
             ++numberOfEliminations;
+        } else {
+            permutedCheckMatrix = permutedCheckMatrix.applyPermutation(permutationIter.GetLeftPermutation());
         }
 
         if(!eliminationWasSuccesful){
