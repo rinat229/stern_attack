@@ -36,9 +36,9 @@ boost::dynamic_bitset<> Projection(const boost::dynamic_bitset<>& bitset, unsign
     } else {
         projectedBitset.resize(end - start);
 
-        #pragma omp simd
-        for(boost::dynamic_bitset<>::size_type idx = start; idx < end; ++idx) {
-            projectedBitset[idx] = bitset[idx];
+        // #pragma omp simd
+        for(boost::dynamic_bitset<>::size_type idx = start, idxProjected = 0; idx < end; ++idx, ++idxProjected) {
+            projectedBitset[idxProjected] = bitset[idx];
         }
     }
 
@@ -64,14 +64,22 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
 
     boost::dynamic_bitset<> errorVector(cols);
     unsigned numberOfIterations = 0;
-    bool EliminationWasSuccesful;
+    unsigned numberOfEliminations = 0;
+    bool eliminationWasSuccesful;
+    
+    BinaryMatrix permutedCheckMatrix;
+    boost::dynamic_bitset<> copiedSyndrome;
 
     for(auto permutationIter = RandomPermutation(cols, cols - rows).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
-        BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
-        boost::dynamic_bitset<> copiedSyndrome;
-        copiedSyndrome = syndrome;
+        permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
 
-        if(!algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome)){
+        if(permutationIter.RightPartWasChanged()) {
+            copiedSyndrome = syndrome;
+            eliminationWasSuccesful = algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome);
+            ++numberOfEliminations;
+        }
+
+        if(!eliminationWasSuccesful){
             continue;
         }
 
@@ -87,6 +95,7 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
         }
     }
 
-    std::cout << "Algorithm: " << algorithm.algorithmName << ",\tsize: " << checkMatrix.ColumnsSize() << ",\tnumber of iterations: " << numberOfIterations << '\n';
+    std::cout << "Algorithm: " << algorithm.algorithmName << ",\tsize: " << checkMatrix.ColumnsSize() << '\n';
+    std::cout << "number of iterations: " << numberOfIterations << "\tnumber of eliminations: " << numberOfEliminations << '\n';
     return errorVector;
 }

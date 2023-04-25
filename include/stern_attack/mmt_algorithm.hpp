@@ -41,7 +41,7 @@ public:
      * @param omega number of errors in codeword (i.e. number of ones in error vector)
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
-    std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
+    std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome, const unsigned omega) const {
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
         unsigned colsSizeOfQ = cols - rows + l;

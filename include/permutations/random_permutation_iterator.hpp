@@ -25,10 +25,11 @@ public:
 
         RandomPermutationIterator& operator++() {
             if(leftPermsNumber == changeableSize){
+                rightPartWasChanged = true;
                 std::shuffle(permutation.begin(), permutation.end(), g);
                 leftPermsNumber = 1;
-                rightPartWasChanged = true;
             } else {
+                rightPartWasChanged = false;
                 std::shuffle(permutation.begin(), permutation.begin() + changeableSize, g);
                 ++leftPermsNumber;
             }

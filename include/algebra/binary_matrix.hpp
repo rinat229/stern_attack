@@ -87,13 +87,13 @@ public:
     boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned startRow, const unsigned endRow) const {
         boost::dynamic_bitset<> resultSum(endRow - startRow);
 
-        for(unsigned idxRow = startRow; idxRow < endRow; ++idxRow) {
+        for(unsigned idxRow = startRow, idxSumRow = 0; idxRow < endRow; ++idxRow, ++idxSumRow) {
             bool resultForRow = 0;
             for(auto& idxCol: indexes){
                 resultForRow ^= matrix[idxRow][idxCol];
             }
 
-            resultSum[idxRow] = resultForRow;
+            resultSum[idxSumRow] = resultForRow;
         }
 
         return resultSum;
