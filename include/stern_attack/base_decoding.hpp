@@ -67,11 +67,24 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
 
     boost::dynamic_bitset<> errorVector(cols);
     unsigned numberOfIterations = 0;
-    bool EliminationWasSuccesful;
+    unsigned numberOfEliminations = 0;
+    bool eliminationWasSuccesful;
+    
+    BinaryMatrix permutedCheckMatrix;
+    boost::dynamic_bitset<> copiedSyndrome;
 
     for(auto permutationIter = RandomPermutation(cols, cols - rows).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
-        BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
-        auto copiedSyndrome = syndrome;
+        permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
+
+        if(permutationIter.RightPartWasChanged()) {
+            copiedSyndrome = syndrome;
+            eliminationWasSuccesful = algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome);
+            ++numberOfEliminations;
+        }
+
+        if(!eliminationWasSuccesful){
+            continue;
+        }
 
         auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
 
@@ -85,7 +98,8 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
         }
     }
 
-    std::cout << "Algorithm: " << algorithm.algorithmName << ",\tsize: " << checkMatrix.ColumnsSize() << ",\tnumber of iterations: " << numberOfIterations << '\n';
+    std::cout << "Algorithm: " << algorithm.algorithmName << ",\tsize: " << checkMatrix.ColumnsSize() << '\n';
+    std::cout << "number of iterations: " << numberOfIterations << "\tnumber of eliminations: " << numberOfEliminations << '\n';
     return errorVector;
 }
 
