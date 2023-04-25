@@ -219,4 +219,3 @@ bool BinaryMatrix::GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<
 
     return true;
 }
-

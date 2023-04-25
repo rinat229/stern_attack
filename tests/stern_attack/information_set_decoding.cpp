@@ -17,7 +17,7 @@
 #include <map>
 
 
-BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
+BOOST_AUTO_TEST_CASE(Small) {
     std::map<int, int> numberOfErrors = {
         {1, 2},
         {2, 2},
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingSmall) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
+BOOST_AUTO_TEST_CASE(Medium) {
     std::map<int, int> numberOfErrors = {
         {2, 4},
         {3, 6},
@@ -99,13 +99,13 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
         // std::cout << "Time default algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
         // std::cout << "Time parallel algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end_parallel - begin_parallel).count() << std::endl;
 
-        // BOOST_TEST(errorVector == errorVectorFromISD);
-        // BOOST_TEST(errorVector == errorVectorFromStern);
-        // BOOST_TEST(errorVector == errorVectorFromMMT);
+        BOOST_TEST(errorVector == errorVectorFromISD);
+        BOOST_TEST(errorVector == errorVectorFromStern);
+        BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 }
 
-BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
+BOOST_AUTO_TEST_CASE(Big) {
     std::map<int, int> numberOfErrors = {
         {1, 12},
         {2, 15},

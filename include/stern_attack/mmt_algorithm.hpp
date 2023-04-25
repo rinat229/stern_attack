@@ -254,4 +254,5 @@ public:
 
         return std::optional<boost::dynamic_bitset<>>();
     }
+
 };

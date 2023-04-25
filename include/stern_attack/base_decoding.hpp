@@ -63,11 +63,13 @@ template <typename DecodingStepAlgorithm>
 boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome,
                                  const unsigned omega, const DecodingStepAlgorithm& algorithm){
     unsigned cols = checkMatrix.ColumnsSize();
+    unsigned rows = checkMatrix.RowsSize();
 
     boost::dynamic_bitset<> errorVector(cols);
     unsigned numberOfIterations = 0;
-    for(auto permutationIter = RandomPermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
-        
+    bool EliminationWasSuccesful;
+
+    for(auto permutationIter = RandomPermutation(cols, cols - rows).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
         auto copiedSyndrome = syndrome;
 
