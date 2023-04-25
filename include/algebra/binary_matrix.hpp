@@ -3,6 +3,7 @@
 #include <vector>
 #include <cassert>
 #include <optional>
+#include <omp.h>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -33,7 +34,7 @@ public:
     }
 
     BinaryMatrix applyPermutation(const std::vector<unsigned>& permutation) {
-        assert(permutation.size() == ColumnsSize());
+        // assert(permutation.size() == ColumnsSize());
 
         DataType permutedMatrix = getData();
         const auto rows = RowsSize();
@@ -70,30 +71,20 @@ public:
     // TODO: optimize this 
     boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
         unsigned rows = endRow == 0 ? RowsSize() : endRow;
-        boost::dynamic_bitset<> resultSum(rows);
 
-        for(unsigned idxRow = 0; idxRow < rows; ++idxRow){
-            bool resultForRow = 0;
-            for(auto& idxCol: indexes){
-                resultForRow ^= matrix[idxRow][idxCol];
-            }
-
-            resultSum[idxRow] = resultForRow;
-        }
-
-        return resultSum;
+        return sumOfColumns(indexes, 0, rows);
     }
 
     boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned startRow, const unsigned endRow) const {
         boost::dynamic_bitset<> resultSum(endRow - startRow);
 
-        for(unsigned idxRow = startRow; idxRow < endRow; ++idxRow) {
+        for(unsigned idxRow = startRow, idxSumRow = 0; idxRow < endRow; ++idxRow, ++idxSumRow) {
             bool resultForRow = 0;
             for(auto& idxCol: indexes){
                 resultForRow ^= matrix[idxRow][idxCol];
             }
 
-            resultSum[idxRow] = resultForRow;
+            resultSum[idxSumRow] = resultForRow;
         }
 
         return resultSum;

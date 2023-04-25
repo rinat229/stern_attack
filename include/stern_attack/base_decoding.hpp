@@ -29,8 +29,8 @@ boost::dynamic_bitset<> Projection(const boost::dynamic_bitset<>& bitset, unsign
         projectedBitset.resize(end - start);
 
         #pragma omp simd
-        for(boost::dynamic_bitset<>::size_type idx = start; idx < end; ++idx) {
-            projectedBitset[idx] = bitset[idx];
+        for(boost::dynamic_bitset<>::size_type idx = start, idxProjected = 0; idx < end; ++idx, ++idxProjected) {
+            projectedBitset[idxProjected] = bitset[idx];
         }
     }
 

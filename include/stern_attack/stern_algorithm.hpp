@@ -26,7 +26,7 @@ public:
      * @param cols number of columns in matrix, p will initialize as 0.003 * cols
      * l as 0.013 * cols  (it's optimal parameters)
     */
-    SternAlgorithm(unsigned cols) : p(static_cast<unsigned>(0.003 * cols) > 0 ? 0.003 * cols : 1),
+    SternAlgorithm(unsigned cols) : p(static_cast<unsigned>(0.0015 * cols) > 0 ? 0.0015 * cols : 1),
                                 l(static_cast<unsigned>(0.013 * cols) > 0 ? 0.013 * cols : 1) {}
 
     std::pair<unsigned, unsigned> getParams() const {
