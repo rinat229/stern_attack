@@ -118,6 +118,8 @@ public:
 
         return result;
     }
+
+    static bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome);
 };
 
 template <typename CharT, typename Traits>
@@ -135,7 +137,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
 }
 
 
-bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
+bool BinaryMatrix::GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
     int rows = matrix.RowsSize(); // rows = n - k
     int columns = matrix.ColumnsSize(); // columns = n
     int k = columns - rows;
@@ -197,4 +199,3 @@ bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
 
     return true;
 }
-
