@@ -12,6 +12,14 @@
 #include <permutations/random_permutation_iterator.hpp>
 
 
+class BaseAlgorithm {
+public:
+    bool GaussElimination(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome) const {
+        return BinaryMatrix::GaussElimination(checkMatrix, syndrome);
+    }
+};
+
+
 /**
  * Algorithm for projecting first end elements of bitset
  * @param bitset bitset
@@ -58,7 +66,13 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
     for(auto permutationIter = RandomPermutation(cols).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
         
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
-        auto permutedErrorVector = algorithm(permutedCheckMatrix, syndrome, omega);
+        auto copiedSyndrome = syndrome;
+
+        if(!algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome)){
+            continue;
+        }
+
+        auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
 
         if(permutedErrorVector) {
             for(unsigned idx = 0; idx < permutationIter->size(); ++idx){

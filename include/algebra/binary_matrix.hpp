@@ -10,7 +10,7 @@
 
 class BinaryMatrix {
 public:
-    using BitContainerType = boost::dynamic_bitset<>;
+    using BitContainerType = boost::dynamic_bitset<std::uint64_t, std::allocator<std::uint64_t>>;
     using DataType = std::vector<BitContainerType>;
     using size_type = std::size_t;
 
@@ -69,17 +69,18 @@ public:
     }
 
     // TODO: optimize this 
-    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
+    BitContainerType sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
         unsigned rows = endRow == 0 ? RowsSize() : endRow;
 
         return sumOfColumns(indexes, 0, rows);
     }
 
-    boost::dynamic_bitset<> sumOfColumns(const std::vector<unsigned>& indexes, const unsigned startRow, const unsigned endRow) const {
-        boost::dynamic_bitset<> resultSum(endRow - startRow);
+    BitContainerType sumOfColumns(const std::vector<unsigned>& indexes, const unsigned startRow, const unsigned endRow) const {
+        BitContainerType resultSum(endRow - startRow);
 
         for(unsigned idxRow = startRow, idxSumRow = 0; idxRow < endRow; ++idxRow, ++idxSumRow) {
             bool resultForRow = 0;
+
             for(auto& idxCol: indexes){
                 resultForRow ^= matrix[idxRow][idxCol];
             }
@@ -90,18 +91,18 @@ public:
         return resultSum;
     }
 
-    void addRow(const boost::dynamic_bitset<>& row) {
+    void addRow(const BitContainerType& row) {
         matrix.push_back(row);
     }
 
     void addRow(const std::string& row){
-        addRow(std::move(boost::dynamic_bitset<>(row)));
+        addRow(std::move(BitContainerType(row)));
     }
 
-    boost::dynamic_bitset<> matVecMul(const boost::dynamic_bitset<>& x) const {
+    BitContainerType matVecMul(const BitContainerType& x) const {
         assert(x.size() == ColumnsSize());
 
-        boost::dynamic_bitset<> result(RowsSize());
+        BitContainerType result(RowsSize());
 
         for(BitContainerType::size_type row = 0; row < RowsSize(); ++row) {
             result.set(row, (matrix[row] & x).count() % 2);
@@ -109,6 +110,8 @@ public:
 
         return result;
     }
+
+    static bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome);
 };
 
 template <typename CharT, typename Traits>
@@ -126,7 +129,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, BinaryMatrix& b){
 }
 
 
-bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
+bool BinaryMatrix::GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome) {
     int rows = matrix.RowsSize(); // rows = n - k
     int columns = matrix.ColumnsSize(); // columns = n
     int k = columns - rows;
