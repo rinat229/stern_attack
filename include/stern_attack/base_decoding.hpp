@@ -95,32 +95,32 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
 template <typename DecodingStepAlgorithm>
 void ThreadTask(RandomPermutation::RandomPermutationIterator& permIter, BinaryMatrix& checkMatrix, 
                 boost::dynamic_bitset<>& syndrome, boost::dynamic_bitset<>& errorVector, 
-                unsigned omega, const DecodingStepAlgorithm& algorithm, boost::mutex &mx ) {
+                unsigned omega, bool& isFinded, const DecodingStepAlgorithm& algorithm, boost::mutex &mx ) {
     std::optional<boost::dynamic_bitset<>> permutedErrorVector;
-    mx.lock();
-    while  ((!permutedErrorVector) && (permIter.CanBePermuted())) {
+    while  ((!isFinded) && (permIter.CanBePermuted())) {
         auto my_iter = permIter;
-        permIter++;
-        mx.unlock();
-
+        {
+            boost::mutex::scoped_lock lock(mx);
+            ++permIter;
+        }
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*my_iter);
+
         auto copiedSyndrome = syndrome;
 
         if(!algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome)){
             continue;
         }
 
-        auto permutedErrorVector = algorithm(permutedCheckMatrix, syndrome, omega);
+        auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
 
-        mx.lock();
         if(permutedErrorVector) {
             for(unsigned idx = 0; idx < my_iter->size(); ++idx){
                 errorVector[(*my_iter)[idx]] = (*permutedErrorVector)[idx];
             }
+            isFinded = true;
         }
     }
 
-    mx.unlock();
     return;
 }
 
@@ -142,13 +142,14 @@ boost::dynamic_bitset<> DecodingParallel(BinaryMatrix& checkMatrix, boost::dynam
                                          const int &numThreads){
     unsigned cols = checkMatrix.ColumnsSize();
     boost::dynamic_bitset<> errorVector(cols);
+    bool isFinded = false;
 
     auto permutationIter = RandomPermutation(cols).begin();
     boost::mutex mx;
     boost::thread_group thr_group;
     for (int i = 0; i < numThreads; i++) {
         thr_group.create_thread(boost::bind(ThreadTask<DecodingStepAlgorithm>, boost::ref(permutationIter), boost::ref(checkMatrix),
-                                boost::ref(syndrome), boost::ref(errorVector), omega,
+                                boost::ref(syndrome), boost::ref(errorVector), omega, boost::ref(isFinded),
                                 boost::ref(algorithm), boost::ref(mx)));
     }
 
