@@ -13,7 +13,7 @@
 #include "base_decoding.hpp"
 
 
-class MMTAlgorithm {
+class MMTAlgorithm : public BaseAlgorithm {
 
     unsigned p;
     unsigned l1;
@@ -42,17 +42,13 @@ public:
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
     std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
-        if(!GaussElimination(checkMatrix, syndrome)){
-            return std::optional<boost::dynamic_bitset<>>();
-        }
-
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
         unsigned colsSizeOfQ = cols - rows + l;
 
         unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
 
-        using CollisionType = std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>;
+        using CollisionType = std::pair<BinaryMatrix::BitContainerType, std::vector<unsigned>>;
         
         std::vector<CollisionType> projectedSum1, projectedSum2;
         std::vector<CollisionType> projectedSum11, projectedSum12;
