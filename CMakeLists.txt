@@ -5,3 +5,4 @@ project("SternAttack")
 
 find_package(Boost COMPONENTS thread REQUIRED)
 add_subdirectory(tests)
+add_subdirectory(benchmark)
