@@ -108,6 +108,10 @@ public:
                     }
                 }
 
+                if(projectedSum1.size() > 1000000) {
+                    break;
+                }
+
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
             }
@@ -137,9 +141,15 @@ public:
 
                             /// TODO: is it a need in recomputation of sum of columns???
                             projectedSum2.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1) ^ projectedSyndrome1, indexUnion);
+
                         }
                     }
                 }
+                                
+                if(projectedSum2.size() > 1000000) {
+                    break;
+                }
+
 
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
