@@ -50,14 +50,22 @@ public:
 
         using CollisionType = std::pair<BinaryMatrix::BitContainerType, std::vector<unsigned>>;
         
+        auto combination = Combination(p, halfColsSizeOfQ);
+        auto numberOfCombs = combination.GetNumberOfCombinations();
+
         std::vector<CollisionType> projectedSum1, projectedSum2;
         std::vector<CollisionType> projectedSum11, projectedSum12;
         std::vector<CollisionType> projectedSum21, projectedSum22;
 
+        projectedSum11.reserve(numberOfCombs);
+        projectedSum12.reserve(numberOfCombs);
+        projectedSum21.reserve(numberOfCombs);
+        projectedSum22.reserve(numberOfCombs);
+
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
-        for(auto combinationIter = Combination(p, halfColsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
+        for(auto combinationIter = combination.begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
             /// TODO: projectedSum11 == projectedSum21 ???
             projectedSum11.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
             projectedSum21.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
@@ -141,11 +149,10 @@ public:
 
                             /// TODO: is it a need in recomputation of sum of columns???
                             projectedSum2.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1) ^ projectedSyndrome1, indexUnion);
-
                         }
                     }
                 }
-                                
+
                 if(projectedSum2.size() > 1000000) {
                     break;
                 }
