@@ -14,7 +14,7 @@ public:
         auto end = std::chrono::time_point_cast<std::chrono::milliseconds> (end_point).time_since_epoch().count();
 
         auto duration = end - start;
-        std::cout << "The program \"" << nameOfProgram << "\" took " << duration << "us";
+        std::cout << "The program \"" << nameOfProgram << "\" took " << duration << "ms";
         if(numberOfIterations > 1) {
             std::cout << " on " << numberOfIterations << " iterations";
         }

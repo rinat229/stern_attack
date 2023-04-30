@@ -71,18 +71,22 @@ public:
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
+        BinaryMatrix checkMatrixTr = checkMatrix.TransposeMatrix(0, checkMatrix.RowsSize());
+        BinaryMatrix checkMatrixOnL1 = checkMatrix.TransposeMatrix(0, l1);
+        BinaryMatrix checkMatrixOnL2 = checkMatrix.TransposeMatrix(l1, l);
+
         for(auto combinationIter = combination.begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
             /// TODO: projectedSum11 == projectedSum21 ???
-            projectedSum11.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
-            projectedSum21.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
+            projectedSum11.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
+            projectedSum21.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
 
             std::vector<unsigned> shiftedCombination = *combinationIter;
             std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&halfColsSizeOfQ](auto& element){
                 element += halfColsSizeOfQ;
             });
 
-            projectedSum12.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, l1, l), shiftedCombination);
-            projectedSum22.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, l1, l) ^ projectedSyndrome2, shiftedCombination);
+            projectedSum12.emplace_back(checkMatrixOnL2.sumOfRows(shiftedCombination), shiftedCombination);
+            projectedSum22.emplace_back(checkMatrixOnL2.sumOfRows(shiftedCombination) ^ projectedSyndrome2, shiftedCombination);
         }
 
         auto compare = [](auto &a, auto& b) {
@@ -117,7 +121,7 @@ public:
                             indexUnion.insert(indexUnion.end(), iterBegin2->second.begin(), iterBegin2->second.end());
 
                             /// TODO: is it a need in recomputation of sum of columns???
-                            projectedSum1.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1), indexUnion);
+                            projectedSum1.emplace_back(checkMatrixOnL1.sumOfRows(indexUnion), indexUnion);
                         }
                     }
                 }
@@ -154,7 +158,7 @@ public:
                             indexUnion.insert(indexUnion.end(), iterBegin2->second.begin(), iterBegin2->second.end());
 
                             /// TODO: is it a need in recomputation of sum of columns???
-                            projectedSum2.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1) ^ projectedSyndrome1, indexUnion);
+                            projectedSum2.emplace_back(checkMatrixOnL1.sumOfRows(indexUnion) ^ projectedSyndrome1, indexUnion);
                         }
                     }
                 }
@@ -162,7 +166,6 @@ public:
                 if(projectedSum2.size() > maxSizeOfProjSumOnLevel2) {
                     break;
                 }
-
 
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
@@ -204,7 +207,7 @@ public:
                                                     iterMatched2->second.begin(), iterMatched2->second.end(),
                                                     std::back_inserter(indexColumns));
 
-                        if((checkMatrix.sumOfColumns(indexColumns) ^ syndrome).count() == omega - indexColumns.size()) {
+                        if((checkMatrixTr.sumOfRows(indexColumns) ^ syndrome).count() == omega - indexColumns.size()) {
                             boost::dynamic_bitset<> errorVector(cols);
 
                             for(const auto& idx : indexColumns) {

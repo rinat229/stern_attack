@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(GaussEliminationCheck1) {
     boost::dynamic_bitset<> syndrom(2);
     syndrom[1] = 1;
     
-    bool CanTransform = GaussElimination(matrix, syndrom);
+    bool CanTransform = BinaryMatrix::GaussElimination(matrix, syndrom);
 
     BOOST_CHECK(CanTransform == false);    
 }
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(GaussEliminationCheck2) {
     Syndrom[1] = 1;
     
 
-    bool CanTransform = GaussElimination(Matrix, Syndrom);
+    bool CanTransform = BinaryMatrix::GaussElimination(Matrix, Syndrom);
 
     BOOST_CHECK(CanTransform == true);  
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(GaussEliminationCheck3) {
     Syndrom[3] = 1;
     
 
-    bool CanTransform = GaussElimination(Matrix, Syndrom);
+    bool CanTransform = BinaryMatrix::GaussElimination(Matrix, Syndrom);
 
     BOOST_CHECK(CanTransform == true);
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(SumOfColumns) {
 
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1, 2}), boost::dynamic_bitset<>(std::string("00111")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1, 2}, 3), boost::dynamic_bitset<>(std::string("111")));
-    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1}, matrix.RowsSize()), boost::dynamic_bitset<>(std::string("11011")));
+    BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 1}, matrix.RowsSize()), boost::dynamic_bitset<>(std::string("00001")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({0, 2}), boost::dynamic_bitset<>(std::string("11010")));
     BOOST_CHECK_EQUAL(matrix.sumOfColumns({1}), boost::dynamic_bitset<>(std::string("11101")));
 }
@@ -107,4 +107,34 @@ BOOST_AUTO_TEST_CASE(MatVecMul) {
 
     boost::dynamic_bitset<> vec(std::string("1110"));
     BOOST_TEST(matrix.matVecMul(vec) == boost::dynamic_bitset<>(std::string("00111")));
+}
+
+BOOST_AUTO_TEST_CASE(TransposingMatrix) {
+    BinaryMatrix matrix = BinaryMatrix({
+        std::string("0101"),
+        std::string("1000"),
+        std::string("1110"),
+        std::string("0111"),
+        std::string("0111"),
+    });
+
+    BinaryMatrix matrixTr1 = matrix.TransposeMatrix(0, 2);
+    BinaryMatrix matrixTr2 = matrix.TransposeMatrix(2, 5);
+
+    BinaryMatrix matrixTr1ShouldBe = BinaryMatrix({
+        std::string("01"),
+        std::string("00"),
+        std::string("01"),
+        std::string("10"),
+    });
+
+    BinaryMatrix matrixTr2ShouldBe = BinaryMatrix({
+        std::string("110"),
+        std::string("111"),
+        std::string("111"),
+        std::string("001"),
+    });
+
+    BOOST_CHECK(matrixTr1 == matrixTr1ShouldBe);
+    BOOST_CHECK(matrixTr2 == matrixTr2ShouldBe);
 }
