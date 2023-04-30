@@ -5,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <execution>
+
 
 #include <algebra/binary_matrix.hpp>
 #include <permutations/combination_iterator.hpp>
@@ -15,6 +17,7 @@
 
 class MMTAlgorithm : public BaseAlgorithm {
 
+    static constexpr unsigned maxSizeOfProjSumOnLevel2 = 1000000;
     unsigned p;
     unsigned l1;
     unsigned l2;
@@ -50,35 +53,50 @@ public:
 
         using CollisionType = std::pair<BinaryMatrix::BitContainerType, std::vector<unsigned>>;
         
+        auto combination = Combination(p, halfColsSizeOfQ);
+        auto numberOfCombs = combination.GetNumberOfCombinations();
+
         std::vector<CollisionType> projectedSum1, projectedSum2;
         std::vector<CollisionType> projectedSum11, projectedSum12;
         std::vector<CollisionType> projectedSum21, projectedSum22;
 
+        projectedSum11.reserve(numberOfCombs);
+        projectedSum12.reserve(numberOfCombs);
+        projectedSum21.reserve(numberOfCombs);
+        projectedSum22.reserve(numberOfCombs);
+
+        projectedSum1.reserve(maxSizeOfProjSumOnLevel2);
+        projectedSum2.reserve(maxSizeOfProjSumOnLevel2);
+
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
-        for(auto combinationIter = Combination(p, halfColsSizeOfQ).begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
+        BinaryMatrix checkMatrixTr = checkMatrix.TransposeMatrix(0, checkMatrix.RowsSize());
+        BinaryMatrix checkMatrixOnL1 = checkMatrix.TransposeMatrix(0, l1);
+        BinaryMatrix checkMatrixOnL2 = checkMatrix.TransposeMatrix(l1, l);
+
+        for(auto combinationIter = combination.begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
             /// TODO: projectedSum11 == projectedSum21 ???
-            projectedSum11.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
-            projectedSum21.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
+            projectedSum11.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
+            projectedSum21.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
 
             std::vector<unsigned> shiftedCombination = *combinationIter;
             std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&halfColsSizeOfQ](auto& element){
                 element += halfColsSizeOfQ;
             });
 
-            projectedSum12.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, l1, l), shiftedCombination);
-            projectedSum22.emplace_back(checkMatrix.sumOfColumns(shiftedCombination, l1, l) ^ projectedSyndrome2, shiftedCombination);
+            projectedSum12.emplace_back(checkMatrixOnL2.sumOfRows(shiftedCombination), shiftedCombination);
+            projectedSum22.emplace_back(checkMatrixOnL2.sumOfRows(shiftedCombination) ^ projectedSyndrome2, shiftedCombination);
         }
 
         auto compare = [](auto &a, auto& b) {
             return a.first < b.first;
         };
 
-        std::sort(projectedSum11.begin(), projectedSum11.end(), compare);
-        std::sort(projectedSum12.begin(), projectedSum12.end(), compare);
-        std::sort(projectedSum21.begin(), projectedSum21.end(), compare);
-        std::sort(projectedSum22.begin(), projectedSum22.end(), compare);
+        std::sort(std::execution::unseq, projectedSum11.begin(), projectedSum11.end(), compare);
+        std::sort(std::execution::unseq, projectedSum12.begin(), projectedSum12.end(), compare);
+        std::sort(std::execution::unseq, projectedSum21.begin(), projectedSum21.end(), compare);
+        std::sort(std::execution::unseq, projectedSum22.begin(), projectedSum22.end(), compare);
 
         for(auto iter1 = projectedSum11.begin(), iter2 = projectedSum12.begin(); iter1 != projectedSum11.end() && iter2 != projectedSum12.end();) {
             if(iter1->first < iter2->first){
@@ -103,12 +121,12 @@ public:
                             indexUnion.insert(indexUnion.end(), iterBegin2->second.begin(), iterBegin2->second.end());
 
                             /// TODO: is it a need in recomputation of sum of columns???
-                            projectedSum1.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1), indexUnion);
+                            projectedSum1.emplace_back(checkMatrixOnL1.sumOfRows(indexUnion), indexUnion);
                         }
                     }
                 }
 
-                if(projectedSum1.size() > 1000000) {
+                if(projectedSum1.size() > maxSizeOfProjSumOnLevel2) {
                     break;
                 }
 
@@ -140,16 +158,14 @@ public:
                             indexUnion.insert(indexUnion.end(), iterBegin2->second.begin(), iterBegin2->second.end());
 
                             /// TODO: is it a need in recomputation of sum of columns???
-                            projectedSum2.emplace_back(checkMatrix.sumOfColumns(indexUnion, l1) ^ projectedSyndrome1, indexUnion);
-
+                            projectedSum2.emplace_back(checkMatrixOnL1.sumOfRows(indexUnion) ^ projectedSyndrome1, indexUnion);
                         }
                     }
                 }
-                                
-                if(projectedSum2.size() > 1000000) {
+
+                if(projectedSum2.size() > maxSizeOfProjSumOnLevel2) {
                     break;
                 }
-
 
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
@@ -191,7 +207,7 @@ public:
                                                     iterMatched2->second.begin(), iterMatched2->second.end(),
                                                     std::back_inserter(indexColumns));
 
-                        if((checkMatrix.sumOfColumns(indexColumns) ^ syndrome).count() == omega - indexColumns.size()) {
+                        if((checkMatrixTr.sumOfRows(indexColumns) ^ syndrome).count() == omega - indexColumns.size()) {
                             boost::dynamic_bitset<> errorVector(cols);
 
                             for(const auto& idx : indexColumns) {

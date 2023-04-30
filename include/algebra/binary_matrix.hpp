@@ -10,7 +10,7 @@
 
 class BinaryMatrix {
 public:
-    using BitContainerType = boost::dynamic_bitset<std::uint64_t, std::allocator<std::uint64_t>>;
+    using BitContainerType = boost::dynamic_bitset<>;
     using DataType = std::vector<BitContainerType>;
     using size_type = std::size_t;
 
@@ -68,7 +68,7 @@ public:
         return rhs.matrix == matrix;
     }
 
-    // TODO: optimize this 
+    /// TODO: optimize this 
     BitContainerType sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
         unsigned rows = endRow == 0 ? RowsSize() : endRow;
 
@@ -86,6 +86,16 @@ public:
             }
 
             resultSum[idxSumRow] = resultForRow;
+        }
+
+        return resultSum;
+    }
+
+    BitContainerType sumOfRows(const std::vector<unsigned>& indexes) const {
+        BitContainerType resultSum(ColumnsSize());
+
+        for(auto &idx: indexes) {
+            resultSum ^= matrix[idx];
         }
 
         return resultSum;
@@ -109,6 +119,24 @@ public:
         }
 
         return result;
+    }
+
+    BinaryMatrix TransposeMatrix(unsigned idxFirstRow, unsigned idxLastRow) {
+        BinaryMatrix transposedMatrix;
+        unsigned cols = ColumnsSize();
+        unsigned rowsOfTrMatrix = idxLastRow - idxFirstRow;
+
+        for(unsigned colIdx = 0; colIdx < cols; ++colIdx) {
+            BinaryMatrix::BitContainerType column(rowsOfTrMatrix);
+
+            for(unsigned idxTr = 0, rowIdx = idxFirstRow; rowIdx < idxLastRow; ++rowIdx, ++idxTr) {
+                column[idxTr] = matrix[rowIdx][colIdx];
+            }
+
+            transposedMatrix.addRow(std::move(column));
+        }
+
+        return transposedMatrix;
     }
 
     static bool GaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome);

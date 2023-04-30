@@ -16,6 +16,20 @@ public:
      */
     Combination(int k, int n): k(k), n(n) {} 
 
+    std::size_t GetNumberOfCombinations() const {
+        unsigned long long res = 1;
+        
+        for(int i = k; i <= n; ++i) {
+            res *= i;
+        }
+
+        for(int i = 1; i <= n - k; ++i) {
+            res /= i;
+        }
+
+        return res;
+    }
+
     class CombinationIterator {
     public:
         using value_type = std::vector<unsigned>;
@@ -33,7 +47,7 @@ public:
         value_type& operator*() {
             return combination;
         }
-
+;
         value_type* operator->() {
             return &combination;
         }
