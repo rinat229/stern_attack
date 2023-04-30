@@ -5,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <execution>
+
 
 #include <algebra/binary_matrix.hpp>
 #include <permutations/combination_iterator.hpp>
@@ -15,6 +17,7 @@
 
 class MMTAlgorithm : public BaseAlgorithm {
 
+    static constexpr unsigned maxSizeOfProjSumOnLevel2 = 1000000;
     unsigned p;
     unsigned l1;
     unsigned l2;
@@ -62,6 +65,9 @@ public:
         projectedSum21.reserve(numberOfCombs);
         projectedSum22.reserve(numberOfCombs);
 
+        projectedSum1.reserve(maxSizeOfProjSumOnLevel2);
+        projectedSum2.reserve(maxSizeOfProjSumOnLevel2);
+
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
@@ -83,10 +89,10 @@ public:
             return a.first < b.first;
         };
 
-        std::sort(projectedSum11.begin(), projectedSum11.end(), compare);
-        std::sort(projectedSum12.begin(), projectedSum12.end(), compare);
-        std::sort(projectedSum21.begin(), projectedSum21.end(), compare);
-        std::sort(projectedSum22.begin(), projectedSum22.end(), compare);
+        std::sort(std::execution::unseq, projectedSum11.begin(), projectedSum11.end(), compare);
+        std::sort(std::execution::unseq, projectedSum12.begin(), projectedSum12.end(), compare);
+        std::sort(std::execution::unseq, projectedSum21.begin(), projectedSum21.end(), compare);
+        std::sort(std::execution::unseq, projectedSum22.begin(), projectedSum22.end(), compare);
 
         for(auto iter1 = projectedSum11.begin(), iter2 = projectedSum12.begin(); iter1 != projectedSum11.end() && iter2 != projectedSum12.end();) {
             if(iter1->first < iter2->first){
@@ -116,7 +122,7 @@ public:
                     }
                 }
 
-                if(projectedSum1.size() > 1000000) {
+                if(projectedSum1.size() > maxSizeOfProjSumOnLevel2) {
                     break;
                 }
 
@@ -153,7 +159,7 @@ public:
                     }
                 }
 
-                if(projectedSum2.size() > 1000000) {
+                if(projectedSum2.size() > maxSizeOfProjSumOnLevel2) {
                     break;
                 }
 

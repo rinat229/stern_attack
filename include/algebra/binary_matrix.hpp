@@ -68,7 +68,7 @@ public:
         return rhs.matrix == matrix;
     }
 
-    // TODO: optimize this 
+    /// TODO: optimize this 
     BitContainerType sumOfColumns(const std::vector<unsigned>& indexes, const unsigned endRow = 0) const{
         unsigned rows = endRow == 0 ? RowsSize() : endRow;
 
