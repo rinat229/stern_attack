@@ -21,7 +21,7 @@ namespace std{
 using CollisionType = std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>;
 
 template <typename IteratorType, typename ArgumentType = std::identity>
-void Radixsort(IteratorType begin, IteratorType end, ArgumentType argument = std::identity{}) {
+void Radixsort(IteratorType begin, IteratorType end, ArgumentType argument = ArgumentType()) {
     using ValueType = IteratorType::value_type;
     using BitsetType = decltype(argument(*begin));
 
