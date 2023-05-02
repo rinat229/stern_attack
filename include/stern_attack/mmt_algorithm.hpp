@@ -51,7 +51,8 @@ public:
 
         unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
 
-        using CollisionType = std::pair<BinaryMatrix::BitContainerType, std::vector<unsigned>>;
+        using IndexType = std::vector<unsigned>;
+        using CollisionType = std::pair<BinaryMatrix::BitContainerType, IndexType>;
         
         auto combination = Combination(p, halfColsSizeOfQ);
         auto numberOfCombs = combination.GetNumberOfCombinations();

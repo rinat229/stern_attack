@@ -8,6 +8,8 @@ set(TESTS
     "permutations/combination"
 
     "stern_attack/information_set_decoding"
+
+    "utils/radixsort"
 )
 
 enable_testing()
