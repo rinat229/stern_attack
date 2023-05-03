@@ -76,16 +76,8 @@ public:
         auto numberOfCombs = combination.GetNumberOfCombinations();
 
         std::vector<CollisionType> projectedSum1, projectedSum2;
-        std::vector<CollisionType> projectedSum11, projectedSum12;
+        std::vector<CollisionType> /*projectedSum11,*/ projectedSum12;
         std::vector<CollisionType> projectedSum21, projectedSum22;
-
-        projectedSum11.reserve(expectedLengthLevel1);
-        projectedSum12.reserve(expectedLengthLevel1);
-        projectedSum21.reserve(expectedLengthLevel1);
-        projectedSum22.reserve(expectedLengthLevel1);
-
-        projectedSum1.reserve(expectedLengthLevel2);
-        projectedSum2.reserve(expectedLengthLevel2);
 
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
@@ -96,8 +88,8 @@ public:
 
         for(auto combinationIter = combination.begin(); combinationIter.CombinationsStillExist(); ++combinationIter) {
             /// TODO: projectedSum11 == projectedSum21 ???
-            projectedSum11.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
-            projectedSum21.emplace_back(checkMatrixOnL2.sumOfRows(*combinationIter), *combinationIter);
+            // projectedSum11.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
+            projectedSum21.emplace_back(checkMatrix.sumOfColumns(*combinationIter, l1, l), *combinationIter);
 
             std::vector<unsigned> shiftedCombination = *combinationIter;
             std::for_each(shiftedCombination.begin(), shiftedCombination.end(), [&halfColsSizeOfQ](auto& element){
@@ -112,18 +104,17 @@ public:
             return a.first.to_ulong() < b.first.to_ulong();
         };
 
-        boost::sort::pdqsort_branchless(projectedSum11.begin(), projectedSum11.end(), compare);
         boost::sort::pdqsort_branchless(projectedSum12.begin(), projectedSum12.end(), compare);
         boost::sort::pdqsort_branchless(projectedSum21.begin(), projectedSum21.end(), compare);
         boost::sort::pdqsort_branchless(projectedSum22.begin(), projectedSum22.end(), compare);
 
-        for(auto iter1 = projectedSum11.begin(), iter2 = projectedSum12.begin(); iter1 != projectedSum11.end() && iter2 != projectedSum12.end();) {
+        for(auto iter1 = projectedSum12.begin(), iter2 = projectedSum12.begin(); iter1 != projectedSum12.end() && iter2 != projectedSum12.end();) {
             if(iter1->first < iter2->first){
                 ++iter1;
             } else if(iter1->first > iter2->first) {
                 ++iter2;
             } else {
-                auto iterEnd1 = std::find_if(iter1, projectedSum11.end(), [&iter1] (auto &iter) {
+                auto iterEnd1 = std::find_if(iter1, projectedSum12.end(), [&iter1] (auto &iter) {
                     return iter.first != iter1->first;
                 });
 
@@ -184,8 +175,8 @@ public:
             }
         }
 
-        boost::sort::pdqsort_branchless(projectedSum1.begin(), projectedSum1.end(), compare);
-        boost::sort::pdqsort_branchless(projectedSum2.begin(), projectedSum2.end(), compare);
+        std::sort(projectedSum1.begin(), projectedSum1.end(), compare);
+        std::sort(projectedSum2.begin(), projectedSum2.end(), compare);
 
         lengthsL2.push_back(projectedSum1.size());
         lengthsL2.push_back(projectedSum2.size());
