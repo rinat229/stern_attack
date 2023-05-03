@@ -58,6 +58,13 @@ int main(int argc, char** argv) {
         return Decoding(checkMatrix, syndrome, omega, algorithm);
     };
 
+    auto launchAndBenchmarkParallel = [&checkMatrix, &syndrome, &omega](auto algorithm){
+        std::string name = algorithm.algorithmName + std::string("(parallel ") + std::to_string(std::thread::hardware_concurrency()) + ")" + std::to_string(checkMatrix.ColumnsSize());
+        Timer timer(name);
+
+        return DecodingParallel(checkMatrix, syndrome, omega, algorithm, std::thread::hardware_concurrency());
+    };
+
     boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTAlgorithm(checkMatrix.ColumnsSize()));
     std::ofstream ofs(directory + "error_vector.txt");
     ofs << errorVectorFromMMT << '\n';

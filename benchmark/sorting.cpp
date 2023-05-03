@@ -39,7 +39,9 @@ void BenchmarkAlgorithm(auto algorithm, std::vector<boost::dynamic_bitset<>> dat
         algorithm(data.begin(), data.end());
     }
 
-    assert(data == dataToCompare);
+    if(data != dataToCompare){
+        std::cerr << name << " is sorted wrong\n";
+    }
 }
 
 void BenchmarkBIS(std::vector<boost::dynamic_bitset<>> data, const std::string& name, const unsigned threadsNum, const auto& dataToCompare) {
@@ -49,7 +51,9 @@ void BenchmarkBIS(std::vector<boost::dynamic_bitset<>> data, const std::string& 
         boost::sort::block_indirect_sort(data.begin(), data.end(), threadsNum);
     }
 
-    assert(data == dataToCompare);
+    if(data != dataToCompare){
+        std::cerr << name << " is sorted wrong\n";
+    }
 }
 
 
@@ -60,7 +64,9 @@ void BenchmarkStdSort(std::vector<boost::dynamic_bitset<>> data, const std::stri
         std::sort(executionPolicy, data.begin(), data.end());
     }
 
-    assert(data == dataToCompare);
+    if(data != dataToCompare){
+        std::cerr << name << " is sorted wrong\n";
+    }
 }
 
 
@@ -90,7 +96,7 @@ int main() {
 
     BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(" + std::to_string(std::thread::hardware_concurrency()) + ')', std::thread::hardware_concurrency(), setToCompare);
     BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(1)", 1, setToCompare);
-    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(4)", 4, setToCompare);
+    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(2)", 2, setToCompare);
     BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(8)", 8, setToCompare);
 
     auto pdqsort = std::bind(boost::sort::pdqsort<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);

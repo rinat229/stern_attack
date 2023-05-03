@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/dynamic_bitset.hpp>
+#include <boost/sort/sort.hpp>
 
 #include <iostream>
 #include <algorithm>
@@ -94,10 +95,10 @@ public:
             return a.first < b.first;
         };
 
-        std::sort(std::execution::unseq, projectedSum11.begin(), projectedSum11.end(), compare);
-        std::sort(std::execution::unseq, projectedSum12.begin(), projectedSum12.end(), compare);
-        std::sort(std::execution::unseq, projectedSum21.begin(), projectedSum21.end(), compare);
-        std::sort(std::execution::unseq, projectedSum22.begin(), projectedSum22.end(), compare);
+        boost::sort::pdqsort(projectedSum11.begin(), projectedSum11.end(), compare);
+        boost::sort::pdqsort(projectedSum12.begin(), projectedSum12.end(), compare);
+        boost::sort::pdqsort(projectedSum21.begin(), projectedSum21.end(), compare);
+        boost::sort::pdqsort(projectedSum22.begin(), projectedSum22.end(), compare);
 
         for(auto iter1 = projectedSum11.begin(), iter2 = projectedSum12.begin(); iter1 != projectedSum11.end() && iter2 != projectedSum12.end();) {
             if(iter1->first < iter2->first){
@@ -173,8 +174,8 @@ public:
             }
         }
 
-        std::sort(projectedSum1.begin(), projectedSum1.end(), compare);
-        std::sort(projectedSum2.begin(), projectedSum2.end(), compare);
+        boost::sort::pdqsort(projectedSum1.begin(), projectedSum1.end(), compare);
+        boost::sort::pdqsort(projectedSum2.begin(), projectedSum2.end(), compare);
 
         // indexes of columns should guarantee to be sorted for finding symmetric difference
         std::for_each(projectedSum1.begin(), projectedSum1.end(), [](CollisionType& element) {
