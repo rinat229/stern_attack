@@ -23,3 +23,7 @@ BOOST_AUTO_TEST_CASE(CombinationTest) {
         BOOST_CHECK_EQUAL(allCombinations[idxCombination++], *iter);
     }
 }
+
+BOOST_AUTO_TEST_CASE(NumberOfCombs) {
+    BOOST_CHECK_EQUAL(NumberOfCombinations(134, 1), 134);
+}

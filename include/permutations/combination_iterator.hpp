@@ -5,6 +5,21 @@
 #include <algorithm>
 
 
+
+std::size_t NumberOfCombinations(int n, int k) {
+    if (k > n) return 0;
+    if (k * 2 > n) k = n - k;
+    if (k == 0) return 1;
+
+    std::size_t result = n;
+    for(int i = 2; i <= k; ++i) {
+        result *= (n - i + 1);
+        result /= i;
+    }
+    return result;
+}
+
+
 class Combination {
     int n, k;
 
@@ -17,17 +32,7 @@ public:
     Combination(int k, int n): k(k), n(n) {} 
 
     std::size_t GetNumberOfCombinations() const {
-        unsigned long long res = 1;
-        
-        for(int i = k; i <= n; ++i) {
-            res *= i;
-        }
-
-        for(int i = 1; i <= n - k; ++i) {
-            res /= i;
-        }
-
-        return res;
+        return NumberOfCombinations(n, k);
     }
 
     class CombinationIterator {

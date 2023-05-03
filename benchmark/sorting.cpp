@@ -78,6 +78,7 @@ int main() {
     std::ranges::sort(setToCompare);
 
     auto cmp = [](auto &lhs, auto& rhs) {
+        // return lhs.to_ulong() < rhs.to_ulong();
         return lhs < rhs;
     };
 
@@ -102,9 +103,25 @@ int main() {
     auto pdqsort = std::bind(boost::sort::pdqsort<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);
     BenchmarkAlgorithm(pdqsort, randomSet, "boost::sort::pdqsort", setToCompare);
 
+    auto pdqsortBranchless = std::bind(boost::sort::pdqsort_branchless<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);
+    BenchmarkAlgorithm(pdqsortBranchless, randomSet, "boost::sort::pdqsort_branchless", setToCompare);
+
     auto spinsort = std::bind(boost::sort::spinsort<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);
     BenchmarkAlgorithm(spinsort, randomSet, "boost::sort::spinsort", setToCompare);
 
-    auto sample_sort = std::bind(boost::sort::sample_sort<IteratorType, CompareType, nullptr>, std::placeholders::_1, std::placeholders::_2, cmp);
-    BenchmarkAlgorithm(sample_sort, randomSet, "boost::sort::sample_sort", setToCompare);
+    auto samplesort = [&setToCompare, &cmp](std::vector<boost::dynamic_bitset<>> data, unsigned numThreads){
+        {
+            Timer timer(std::string("boost::sample_sort") + std::to_string(numThreads));
+            boost::sort::sample_sort(data.begin(), data.end(), cmp, numThreads);
+        }
+
+        if(data != setToCompare){
+            std::cerr << "boost::sample_sort is sorted wrong\n";
+        }
+    };
+
+    samplesort(randomSet, 1);
+    samplesort(randomSet, 2);
+    samplesort(randomSet, 4);
+    samplesort(randomSet, 10);
 }

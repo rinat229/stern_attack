@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
         return DecodingParallel(checkMatrix, syndrome, omega, algorithm, std::thread::hardware_concurrency());
     };
 
-    boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTAlgorithm(checkMatrix.ColumnsSize()));
+    boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
     std::ofstream ofs(directory + "error_vector.txt");
     ofs << errorVectorFromMMT << '\n';
 

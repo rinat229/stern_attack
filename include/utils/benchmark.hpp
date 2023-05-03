@@ -20,6 +20,10 @@ public:
         }
         std::cout << '\n';
     }
+
+    const std::string& name(){
+        return nameOfProgram;
+    }
     
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_point;
