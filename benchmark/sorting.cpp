@@ -3,7 +3,8 @@
 #include <random>
 #include <string>
 #include <thread>
-
+#include <execution>
+#include <cassert>
 
 #include <boost/dynamic_bitset.hpp>
 #include <boost/sort/sort.hpp>
@@ -31,17 +32,44 @@ std::vector<boost::dynamic_bitset<>> GenerateRandomVec(unsigned length, unsigned
     return vec;
 }
 
+void BenchmarkAlgorithm(auto algorithm, std::vector<boost::dynamic_bitset<>> data, const std::string& name, const auto& dataToCompare) {
+    {
+        Timer timer(name);
 
-void BenchmarkAlgorithm(auto algorithm, std::vector<boost::dynamic_bitset<>> data, const std::string& name) {
-    Timer timer(name);
+        algorithm(data.begin(), data.end());
+    }
 
-    algorithm(data.begin(), data.end());
+    assert(data == dataToCompare);
+}
+
+void BenchmarkBIS(std::vector<boost::dynamic_bitset<>> data, const std::string& name, const unsigned threadsNum, const auto& dataToCompare) {
+    {
+        Timer timer(name);
+
+        boost::sort::block_indirect_sort(data.begin(), data.end(), threadsNum);
+    }
+
+    assert(data == dataToCompare);
+}
+
+
+void BenchmarkStdSort(std::vector<boost::dynamic_bitset<>> data, const std::string& name, auto executionPolicy, const auto& dataToCompare) {
+    {
+        Timer timer(name);
+
+        std::sort(executionPolicy, data.begin(), data.end());
+    }
+
+    assert(data == dataToCompare);
 }
 
 
 int main() {
     int length = 1000000, bitsetLen = 28;
     auto randomSet = GenerateRandomVec(length, bitsetLen);
+    auto setToCompare = randomSet;
+
+    std::ranges::sort(setToCompare);
 
     auto cmp = [](auto &lhs, auto& rhs) {
         return lhs < rhs;
@@ -50,21 +78,27 @@ int main() {
     using IteratorType = decltype(randomSet.begin());
     using CompareType = decltype(cmp);
 
-    BenchmarkAlgorithm(std::sort<IteratorType>, randomSet, "std::sort");
+    BenchmarkAlgorithm(std::sort<IteratorType>, randomSet, "std::sort", setToCompare);
+    BenchmarkAlgorithm(std::sort_heap<IteratorType>, randomSet, "std::sort_heap", setToCompare);                          
+
+    BenchmarkStdSort(randomSet, "std::sort(std::unseq)", std::execution::unseq, setToCompare);
+    BenchmarkStdSort(randomSet, "std::sort(std::par)", std::execution::par, setToCompare);
+    BenchmarkStdSort(randomSet, "std::sort(std::par_unseq)", std::execution::par_unseq, setToCompare);
 
     auto radixsort = std::bind(Radixsort<IteratorType>, std::placeholders::_1, std::placeholders::_2, std::identity());
-    BenchmarkAlgorithm(radixsort, randomSet, "Radixsort");
-    
-    auto blockIndirectSort = std::bind(boost::sort::block_indirect_sort<IteratorType, CompareType, nullptr>, std::placeholders::_1, std::placeholders::_2, cmp);
-    BenchmarkAlgorithm(blockIndirectSort, randomSet, "boost::sort::block_indirect_sort(" + std::to_string(std::thread::hardware_concurrency()) + ')');
+    BenchmarkAlgorithm(radixsort, randomSet, "Radixsort", setToCompare);
+
+    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(" + std::to_string(std::thread::hardware_concurrency()) + ')', std::thread::hardware_concurrency(), setToCompare);
+    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(1)", 1, setToCompare);
+    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(4)", 4, setToCompare);
+    BenchmarkBIS(randomSet, "boost::sort::block_indirect_sort(8)", 8, setToCompare);
 
     auto pdqsort = std::bind(boost::sort::pdqsort<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);
-    BenchmarkAlgorithm(pdqsort, randomSet, "boost::sort::pdqsort");
+    BenchmarkAlgorithm(pdqsort, randomSet, "boost::sort::pdqsort", setToCompare);
 
     auto spinsort = std::bind(boost::sort::spinsort<IteratorType, CompareType>, std::placeholders::_1, std::placeholders::_2, cmp);
-    BenchmarkAlgorithm(spinsort, randomSet, "boost::sort::spinsort");
+    BenchmarkAlgorithm(spinsort, randomSet, "boost::sort::spinsort", setToCompare);
 
     auto sample_sort = std::bind(boost::sort::sample_sort<IteratorType, CompareType, nullptr>, std::placeholders::_1, std::placeholders::_2, cmp);
-    BenchmarkAlgorithm(sample_sort, randomSet, "boost::sort::sample_sort");
-
+    BenchmarkAlgorithm(sample_sort, randomSet, "boost::sort::sample_sort", setToCompare);
 }
