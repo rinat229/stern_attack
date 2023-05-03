@@ -1,5 +1,6 @@
 set(programs
     "gauss_elimination"
+    "sorting"
 )
 
 foreach(program ${programs})

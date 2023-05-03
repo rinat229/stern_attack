@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingMedium) {
 
         // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
         // boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
-        // boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
+        // boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
 
         auto end = std::chrono::steady_clock::now();
         // auto begin_parallel = std::chrono::steady_clock::now();
@@ -137,13 +137,13 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
 
         BOOST_CHECK_EQUAL(errorVector.count(), omega);
         
-        auto launchAndBenchmark = [&checkMatrix, &syndrome, &omega](auto algorithm){
+        auto launchAndBenchmark = [&checkMatrix, &syndrome, &omega](auto& algorithm){
             std::string name = std::string(algorithm.algorithmName) + std::to_string(checkMatrix.ColumnsSize());
             Timer timer(name);
 
             return Decoding(checkMatrix, syndrome, omega, algorithm);
         };
-        auto launchAndBenchmarkParallel = [&checkMatrix, &syndrome, &omega](auto algorithm){
+        auto launchAndBenchmarkParallel = [&checkMatrix, &syndrome, &omega](auto& algorithm){
             std::string name = std::string(algorithm.algorithmName) + std::to_string(checkMatrix.ColumnsSize());
             Timer timer(name);
 
@@ -151,9 +151,15 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
         };
 
         // boost::dynamic_bitset<> errorVectorFromISD = Decoding(checkMatrix, syndrome, omega, InformationSetDecoding(checkMatrix.ColumnsSize()));
-        boost::dynamic_bitset<> errorVectorFromStern = launchAndBenchmark(SternAlgorithm(checkMatrix.ColumnsSize()));
-        boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTAlgorithm(checkMatrix.ColumnsSize()));
-        boost::dynamic_bitset<> errorVectorFromMMTParallel = launchAndBenchmarkParallel(MMTAlgorithm(checkMatrix.ColumnsSize()));
+        auto stern = SternAlgorithm(checkMatrix.ColumnsSize());
+        boost::dynamic_bitset<> errorVectorFromStern = launchAndBenchmark(stern);
+
+        auto mmt = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
+        boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(mmt);
+        mmt.sizes();
+
+        auto mmtp = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
+        boost::dynamic_bitset<> errorVectorFromMMTParallel = launchAndBenchmarkParallel(mmtp);
 
         // BOOST_TEST(errorVector == errorVectorFromISD);
         // BOOST_TEST(errorVector == errorVectorFromStern);
