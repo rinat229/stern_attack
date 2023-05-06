@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <execution>
+#include <pstl/unseq_backend_simd.h>
 #include <cassert>
 
 #include <boost/dynamic_bitset.hpp>
@@ -78,8 +79,8 @@ int main() {
     std::ranges::sort(setToCompare);
 
     auto cmp = [](auto &lhs, auto& rhs) {
-        // return lhs.to_ulong() < rhs.to_ulong();
-        return lhs < rhs;
+        return lhs.to_ulong() < rhs.to_ulong();
+        // return lhs < rhs;
     };
 
     using IteratorType = decltype(randomSet.begin());

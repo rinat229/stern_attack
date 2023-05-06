@@ -52,7 +52,7 @@ public:
         value_type& operator*() {
             return combination;
         }
-;
+
         value_type* operator->() {
             return &combination;
         }

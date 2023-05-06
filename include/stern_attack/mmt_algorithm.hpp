@@ -79,6 +79,13 @@ public:
         std::vector<CollisionType> /*projectedSum11,*/ projectedSum12;
         std::vector<CollisionType> projectedSum21, projectedSum22;
 
+        projectedSum12.reserve(expectedLengthLevel1);
+        projectedSum21.reserve(expectedLengthLevel1);
+        projectedSum22.reserve(expectedLengthLevel1);
+
+        projectedSum1.reserve(expectedLengthLevel2);
+        projectedSum2.reserve(expectedLengthLevel2);
+
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
 
@@ -175,8 +182,8 @@ public:
             }
         }
 
-        std::sort(projectedSum1.begin(), projectedSum1.end(), compare);
-        std::sort(projectedSum2.begin(), projectedSum2.end(), compare);
+        boost::sort::pdqsort_branchless(projectedSum1.begin(), projectedSum1.end(), compare);
+        boost::sort::pdqsort_branchless(projectedSum2.begin(), projectedSum2.end(), compare);
 
         lengthsL2.push_back(projectedSum1.size());
         lengthsL2.push_back(projectedSum2.size());
