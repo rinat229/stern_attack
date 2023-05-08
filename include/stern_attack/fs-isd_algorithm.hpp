@@ -10,23 +10,87 @@
 #include <permutations/combination_iterator.hpp>
 #include <permutations/primitive_permutation_iterator.hpp>
 #include <permutations/random_permutation_iterator.hpp>
-#include <utils/cartesian_product.hpp>
 #include "base_decoding.hpp"
 
 
-class SternAlgorithm : public BaseAlgorithm {
+bool PartialGaussElimination(BinaryMatrix &matrix, boost::dynamic_bitset<> &syndrome, int l) {
+        int rows = matrix.RowsSize(); // rows = n - k
+        int columns = matrix.ColumnsSize(); // columns = n
+        int k = columns - rows;
+
+
+        // Transform to upper triangle from for right side
+        int i = l;
+        for (int j = k + l; j < columns; j++) {
+            std::vector<int> pos; // Find ALl pos where 1 
+            for (int z = i + 1; z < rows; z++) {
+                if ((bool)matrix[z][j]) {
+                    pos.push_back(z);                
+                }
+            }
+
+            // Find zero in column
+            if (!((bool)matrix[i][j])) {
+
+                // We need to check, if there are a non zero element in column
+                if (pos.empty()) { // Go to Next Column
+                    i++;
+                    continue; 
+                } else { // Swipe Rows
+                    std::swap(matrix[i], matrix[pos.back()]);
+
+                    bool temp = (bool)syndrome[i];
+                    syndrome[i] = syndrome[pos.back()];
+                    syndrome[pos.back()] = temp; 
+                    pos.pop_back();
+                } 
+            }
+
+            for (int k = 0; k < pos.size(); k++) {
+                matrix[pos[k]] ^= matrix[i];
+                syndrome[pos[k]] ^= syndrome[i];
+            }
+            i++;
+        }
+        
+        bool det = 1;
+        for (i = l; i < rows; i++) {
+            det = ((bool)matrix[i][k + i] && det);
+        }
+
+        if (!det) { // if det == 0
+            return false;
+        }
+
+        i = rows - 1; // last row
+        for (int j = columns - 1; j >= (k + l); j--) {
+            for (int z = i - 1; z >= 0; z--) {
+                if ((bool)matrix[z][j]) {
+                    matrix[z] ^= matrix[i];
+                    syndrome[z] ^= syndrome[i];
+                }
+            }
+            i--;
+        }
+
+        return true;
+}
+
+
+class FS_ISD_Algorithm : public BaseAlgorithm {
     int p;
     int l;
 
 public:
-    constexpr static const char* algorithmName = "Stern";
+    constexpr static const char* algorithmName = "FS-ISD";
+
 
     /**
      * Creates an object for Stern algorithm
      * @param cols number of columns in matrix, p will initialize as 0.003 * cols
      * l as 0.013 * cols  (it's optimal parameters)
     */
-    SternAlgorithm(unsigned cols) : p(static_cast<unsigned>(0.002 * cols) > 0 ? 0.002 * cols : 1),
+    FS_ISD_Algorithm(unsigned cols) : p(static_cast<unsigned>(0.002 * cols) > 0 ? 0.002 * cols : 1),
                                 l(static_cast<unsigned>(0.013 * cols) > 0 ? 0.013 * cols : 1) {}
 
     std::pair<unsigned, unsigned> getParams() const {
@@ -41,12 +105,15 @@ public:
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
     std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
-        if(!GaussElimination(checkMatrix, syndrome)) {
+        
+        if(!PartialGaussElimination(checkMatrix, syndrome, l)) {
             return std::optional<boost::dynamic_bitset<>>();
         }
+        
+        
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
-        unsigned colsSizeOfQ = cols - rows;
+        unsigned colsSizeOfQ = cols - rows + l;
         unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
 
         using CollisionType = std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>;
@@ -100,9 +167,9 @@ public:
                         }
 
                         const auto matchedSupp = checkMatrix.sumOfColumns(iter1.second) ^ checkMatrix.sumOfColumns(iter2.second) ^ syndrome;
-                        for(boost::dynamic_bitset<>::size_type setBitIdx = 0; setBitIdx < matchedSupp.size(); ++setBitIdx) {
+                        for(boost::dynamic_bitset<>::size_type setBitIdx = l; setBitIdx < matchedSupp.size(); ++setBitIdx) {
                             if(matchedSupp[setBitIdx]){
-                                errorVector.set(setBitIdx + colsSizeOfQ);
+                                errorVector.set(setBitIdx + colsSizeOfQ - l);
                             }
                         }
 

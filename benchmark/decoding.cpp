@@ -117,5 +117,9 @@ int main(int argc, const char** argv) {
         };
     }
 
+    data["params"]["n"] = checkMatrix.ColumnsSize();
+    data["params"]["k"] = checkMatrix.ColumnsSize() - checkMatrix.RowsSize();
+    data["params"]["omega"] = omega;
+
     output << std::setw(4) << data << '\n';
 }

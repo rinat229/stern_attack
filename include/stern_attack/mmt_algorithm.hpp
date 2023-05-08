@@ -18,7 +18,6 @@
 
 
 class MMTAlgorithm : public BaseAlgorithm {
-
     static constexpr unsigned maxSizeOfProjSumOnLevel2 = 1000000;
     unsigned p;
     unsigned l1;
@@ -26,8 +25,6 @@ class MMTAlgorithm : public BaseAlgorithm {
     unsigned l;
     std::size_t expectedLengthLevel1;
     std::size_t expectedLengthLevel2;
-
-
 
 public:
     constexpr static const char* algorithmName = "MMT";
@@ -63,6 +60,10 @@ public:
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
     std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
+        if(!GaussElimination(checkMatrix, syndrome)) {
+            return std::optional<boost::dynamic_bitset<>>();
+        }
+
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
         unsigned colsSizeOfQ = cols - rows + l;

@@ -71,10 +71,6 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
         auto copiedSyndrome = syndrome;
 
-        if(!algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome)){
-            continue;
-        }
-
         auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
 
         if(permutedErrorVector) {
@@ -106,10 +102,6 @@ void ThreadTask(RandomPermutation::RandomPermutationIterator& permIter, BinaryMa
         BinaryMatrix permutedCheckMatrix = checkMatrix.applyPermutation(*my_iter);
 
         auto copiedSyndrome = syndrome;
-
-        if(!algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome)){
-            continue;
-        }
 
         auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
 

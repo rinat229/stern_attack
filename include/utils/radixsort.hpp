@@ -6,18 +6,6 @@
 #include <functional>
 
 
-namespace std{
-    template <typename CharT, typename Traits, typename ValueType>
-    std::basic_ostream<CharT, Traits>&
-    operator<<(std::basic_ostream<CharT, Traits>& os, const std::vector<ValueType>& b){
-        for(const auto& value: b){
-            os << value << ' ';
-        }
-
-        return os;
-    }
-}
-
 using CollisionType = std::pair<boost::dynamic_bitset<>, std::vector<unsigned>>;
 
 template <typename IteratorType, typename ArgumentType = std::identity>
