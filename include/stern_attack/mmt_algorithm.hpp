@@ -8,6 +8,7 @@
 #include <cassert>
 #include <execution>
 #include <numeric>
+#include <tuple>
 
 
 #include <algebra/binary_matrix.hpp>
@@ -33,6 +34,10 @@ public:
     void sizes(){
         std::cout << "Expected length: " << expectedLengthLevel2 << '\n';
         std::cout << "Length: " << (std::reduce(lengthsL2.begin(), lengthsL2.end()) / static_cast<float>(lengthsL2.size())) << '\n';
+    }
+
+    auto getParams() const {
+        return std::make_tuple(p, l1, l2, l);
     }
 
     /**
