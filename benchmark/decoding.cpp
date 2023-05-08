@@ -12,6 +12,7 @@
 #include <permutations/random_permutation_iterator.hpp>
 #include <stern_attack/stern_algorithm.hpp>
 #include <stern_attack/mmt_algorithm.hpp>
+#include <stern_attack/fs-isd_algorithm.hpp>
 #include <utils/benchmark.hpp>
 #define assertm(exp, msg) assert(((void)msg, exp))
  
@@ -104,11 +105,17 @@ int main(int argc, const char** argv) {
 
     for(int iteration = 0; iteration < N; ++iteration) {
         auto resultStern = DecodingBecnhmark(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        auto resultFS = DecodingBecnhmark(checkMatrix, syndrome, omega, FS_ISD_Algorithm(checkMatrix.ColumnsSize()));
         auto resultMMT = DecodingBecnhmark(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
 
         data["stern"][iteration] = {
             {"iterations_count", resultStern.numberOfIterations},
             {"duration", resultStern.duration},
+        };
+
+        data["FS_ISD"][iteration] = {
+            {"iterations_count", resultFS.numberOfIterations},
+            {"duration", resultFS.duration},
         };
 
         data["MMT"][iteration] = {
@@ -120,5 +127,18 @@ int main(int argc, const char** argv) {
     data["params"]["n"] = checkMatrix.ColumnsSize();
     data["params"]["k"] = checkMatrix.ColumnsSize() - checkMatrix.RowsSize();
     data["params"]["omega"] = omega;
+
+    auto [sternP, sternL] = SternAlgorithm(checkMatrix.ColumnsSize()).getParams();
+    auto [fsP, fsL] = FS_ISD_Algorithm(checkMatrix.ColumnsSize()).getParams();
+    auto [mmtP, mmtL1, mmtL2, _] = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()).getParams();
+
+    data["stern_params"]["p"] = sternP;
+    data["stern_params"]["l"] = sternL;
+    data["FS_ISD_params"]["p"] = fsP;
+    data["FS_ISD_params"]["l"] = fsL;
+    data["MMT_params"]["p"] = mmtP;
+    data["MMT_params"]["l1"] = mmtL1;
+    data["MMT_params"]["l2"] = mmtL2;
+
     output << std::setw(4) << data << '\n';
 }
