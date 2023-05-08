@@ -1,3 +1,5 @@
+#pragma once
+
 #include <tuple>                        // make_tuple, tuple
 #include <utility>                      // pair
 #include <vector>                       // vector
