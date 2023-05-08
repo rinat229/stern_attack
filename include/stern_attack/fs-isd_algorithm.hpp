@@ -106,11 +106,11 @@ public:
      */
     std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
         
-        if(!PartialGaussElimination(checkMatrix, syndrome, l)) {
+        if(!GaussElimination(checkMatrix, syndrome)) {
             return std::optional<boost::dynamic_bitset<>>();
         }
         
-        
+
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
         unsigned colsSizeOfQ = cols - rows + l;
