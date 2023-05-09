@@ -78,6 +78,53 @@ DataStruct DecodingBecnhmark(BinaryMatrix checkMatrix, boost::dynamic_bitset<> s
     return DataStruct{timer.GetDuration(), numberOfIterations};
 }
 
+template <typename DecodingStepAlgorithm>
+DataStruct DecodingBecnhmarkReduced(BinaryMatrix& checkMatrix, boost::dynamic_bitset<>& syndrome,
+                                 const unsigned omega, const DecodingStepAlgorithm& algorithm){
+    Timer timer(algorithm.algorithmName, 1, false);
+
+    unsigned cols = checkMatrix.ColumnsSize();
+    unsigned rows = checkMatrix.RowsSize();
+
+    boost::dynamic_bitset<> errorVector(cols);
+    unsigned numberOfIterations = 0;
+    unsigned numberOfEliminations = 0;
+    bool eliminationWasSuccesful;
+    
+    BinaryMatrix permutedCheckMatrix;
+    boost::dynamic_bitset<> copiedSyndrome;
+
+    for(auto permutationIter = RandomPermutation(cols, cols - rows).begin(); permutationIter.CanBePermuted(); ++permutationIter, ++numberOfIterations) {
+        if(permutationIter.RightPartWasChanged()) {
+            permutedCheckMatrix = checkMatrix.applyPermutation(*permutationIter);
+            copiedSyndrome = syndrome;
+            eliminationWasSuccesful = algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome);
+            ++numberOfEliminations;
+        } else if(eliminationWasSuccesful){
+            permutedCheckMatrix = permutedCheckMatrix.applyPermutation(permutationIter.GetLeftPermutation());
+        }
+
+        if(!eliminationWasSuccesful){
+            continue;
+        }
+
+        auto permutedErrorVector = algorithm(permutedCheckMatrix, copiedSyndrome, omega);
+
+        if(permutedErrorVector) {
+            for(unsigned idx = 0; idx < permutationIter->size(); ++idx){
+                errorVector[(*permutationIter)[idx]] = (*permutedErrorVector)[idx];
+            }
+            // assert(checkMatrix.matVecMul(errorVector) == syndrome);
+
+            break;
+        }
+    }
+
+    std::cout << "Algorithm: " << algorithm.algorithmName << ",\tsize: " << checkMatrix.ColumnsSize() << '\n';
+    std::cout << "number of iterations: " << numberOfIterations << "\tnumber of eliminations: " << numberOfEliminations << '\n';
+    return DataStruct{timer.GetDuration(), numberOfIterations};
+}
+
 int main(int argc, const char** argv) {
     if(argc != 3) {
         std::cerr << "You should provide the name of output json and number of iterations\n";
@@ -105,30 +152,30 @@ int main(int argc, const char** argv) {
     boost::dynamic_bitset<> syndrome(inputDataForSyndrome.front());
 
     for(int iteration = 0; iteration < N; ++iteration) {
-        auto resultStern = DecodingBecnhmark(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
-        auto resultSternHash = DecodingBecnhmark(checkMatrix, syndrome, omega, NewSternAlgorithm(checkMatrix.ColumnsSize()));
-        auto resultFS = DecodingBecnhmark(checkMatrix, syndrome, omega, FS_ISD_Algorithm(checkMatrix.ColumnsSize()));
-        auto resultMMT = DecodingBecnhmark(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
+        auto resultStern = DecodingBecnhmarkReduced(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        // auto resultSternHash = DecodingBecnhmarkReduced(checkMatrix, syndrome, omega, NewSternAlgorithm(checkMatrix.ColumnsSize()));
+        // auto resultFS = DecodingBecnhmarkReduced(checkMatrix, syndrome, omega, FS_ISD_Algorithm(checkMatrix.ColumnsSize()));
+        // auto resultMMT = DecodingBecnhmarkReduced(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
 
         data["stern"][iteration] = {
             {"iterations_count", resultStern.numberOfIterations},
             {"duration", resultStern.duration},
         };
 
-        data["FS_ISD"][iteration] = {
-            {"iterations_count", resultFS.numberOfIterations},
-            {"duration", resultFS.duration},
-        };
+        // data["FS_ISD"][iteration] = {
+        //     {"iterations_count", resultFS.numberOfIterations},
+        //     {"duration", resultFS.duration},
+        // };
 
-        data["MMT"][iteration] = {
-            {"iterations_count", resultMMT.numberOfIterations},
-            {"duration", resultMMT.duration},
-        };
+        // data["MMT"][iteration] = {
+        //     {"iterations_count", resultMMT.numberOfIterations},
+        //     {"duration", resultMMT.duration},
+        // };
 
-        data["stern_hash"][iteration] = {
-            {"iterations_count", resultSternHash.numberOfIterations},
-            {"duration", resultSternHash.duration},
-        };
+        // data["stern_hash"][iteration] = {
+        //     {"iterations_count", resultSternHash.numberOfIterations},
+        //     {"duration", resultSternHash.duration},
+        // };
     }
 
     data["params"]["n"] = checkMatrix.ColumnsSize();

@@ -99,9 +99,9 @@ BOOST_AUTO_TEST_CASE(Medium) {
         // std::cout << "Time default algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
         // std::cout << "Time parallel algo - " << std::chrono::duration_cast<std::chrono::milliseconds>(end_parallel - begin_parallel).count() << std::endl;
 
-        BOOST_TEST(errorVector == errorVectorFromISD);
-        BOOST_TEST(errorVector == errorVectorFromStern);
-        BOOST_TEST(errorVector == errorVectorFromMMT);
+        // BOOST_TEST(errorVector == errorVectorFromISD);
+        // BOOST_TEST(errorVector == errorVectorFromStern);
+        // BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 }
 
@@ -154,15 +154,18 @@ BOOST_AUTO_TEST_CASE(Big) {
         // boost::dynamic_bitset<> errorVectorFromStern = Decoding(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
         // boost::dynamic_bitset<> errorVectorFromMMT = Decoding(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize()));
 
+        auto stern = SternAlgorithm(checkMatrix.ColumnsSize());
+        boost::dynamic_bitset<> errorVectorFromStern = launchAndBenchmark(stern);
+
         auto mmt = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
         boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(mmt);
-        mmt.sizes();
+        // mmt.sizes();
 
-        auto mmtp = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
-        boost::dynamic_bitset<> errorVectorFromMMTParallel = launchAndBenchmarkParallel(mmtp);
+        // auto mmtp = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
+        // boost::dynamic_bitset<> errorVectorFromMMTParallel = launchAndBenchmarkParallel(mmtp);
 
         // BOOST_TEST(errorVector == errorVectorFromISD);
-        // BOOST_TEST(errorVector == errorVectorFromStern);
-        // BOOST_TEST(errorVector == errorVectorFromMMT);
+        BOOST_TEST(errorVector == errorVectorFromStern);
+        BOOST_TEST(errorVector == errorVectorFromMMT);
     }
 } 

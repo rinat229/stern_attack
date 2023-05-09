@@ -81,7 +81,7 @@ boost::dynamic_bitset<> Decoding(BinaryMatrix& checkMatrix, boost::dynamic_bitse
             copiedSyndrome = syndrome;
             eliminationWasSuccesful = algorithm.GaussElimination(permutedCheckMatrix, copiedSyndrome);
             ++numberOfEliminations;
-        } else {
+        } else if(eliminationWasSuccesful){
             permutedCheckMatrix = permutedCheckMatrix.applyPermutation(permutationIter.GetLeftPermutation());
         }
 

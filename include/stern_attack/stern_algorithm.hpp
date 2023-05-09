@@ -41,9 +41,6 @@ public:
      * @return filled std::optional<boost::dynamic_bitset<>> if success, else empty optional
      */
     std::optional<boost::dynamic_bitset<>> operator()(BinaryMatrix& checkMatrix, boost::dynamic_bitset<> syndrome, const unsigned omega) const {
-        if(!GaussElimination(checkMatrix, syndrome)) {
-            return std::optional<boost::dynamic_bitset<>>();
-        }
         unsigned rows = checkMatrix.RowsSize();
         unsigned cols = checkMatrix.ColumnsSize();
         unsigned colsSizeOfQ = cols - rows;
