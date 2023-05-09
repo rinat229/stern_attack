@@ -35,7 +35,7 @@ class GetParams:
         return comb(self.params["n"], self.params["omega"]) / (t * t * t1)
     
     def get_expected(self, alg: str, params_optimized: dict) -> int:
-        if alg == "stern":
+        if alg == "stern" or alg == "stern_hash":
             return self._get_expected_stern(params_optimized)
         if alg == "FS_ISD":
             return self._get_expected_fs_isd(params_optimized)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     with open(args.input_data) as f:
         data = json.load(f)
 
-    algs = ["stern", "MMT", "FS_ISD"]
+    algs = ["stern", "MMT", "FS_ISD", "stern_hash"]
 
     d_iterations = {}
     d_duration = {}

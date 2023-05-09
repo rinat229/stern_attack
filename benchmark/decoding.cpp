@@ -11,6 +11,7 @@
 #include <algebra/binary_matrix.hpp>
 #include <permutations/random_permutation_iterator.hpp>
 #include <stern_attack/stern_algorithm.hpp>
+#include <stern_attack/new_stern_algorithm.hpp>
 #include <stern_attack/mmt_algorithm.hpp>
 #include <stern_attack/fs-isd_algorithm.hpp>
 #include <utils/benchmark.hpp>
@@ -105,6 +106,7 @@ int main(int argc, const char** argv) {
 
     for(int iteration = 0; iteration < N; ++iteration) {
         auto resultStern = DecodingBecnhmark(checkMatrix, syndrome, omega, SternAlgorithm(checkMatrix.ColumnsSize()));
+        auto resultSternHash = DecodingBecnhmark(checkMatrix, syndrome, omega, NewSternAlgorithm(checkMatrix.ColumnsSize()));
         auto resultFS = DecodingBecnhmark(checkMatrix, syndrome, omega, FS_ISD_Algorithm(checkMatrix.ColumnsSize()));
         auto resultMMT = DecodingBecnhmark(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
 
@@ -122,6 +124,11 @@ int main(int argc, const char** argv) {
             {"iterations_count", resultMMT.numberOfIterations},
             {"duration", resultMMT.duration},
         };
+
+        data["stern_hash"][iteration] = {
+            {"iterations_count", resultSternHash.numberOfIterations},
+            {"duration", resultSternHash.duration},
+        };
     }
 
     data["params"]["n"] = checkMatrix.ColumnsSize();
@@ -134,6 +141,8 @@ int main(int argc, const char** argv) {
 
     data["stern_params"]["p"] = sternP;
     data["stern_params"]["l"] = sternL;
+    data["stern_hash_params"]["p"] = sternP;
+    data["stern_hash_params"]["l"] = sternL;
     data["FS_ISD_params"]["p"] = fsP;
     data["FS_ISD_params"]["l"] = fsL;
     data["MMT_params"]["p"] = mmtP;
