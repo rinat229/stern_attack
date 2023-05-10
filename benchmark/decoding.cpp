@@ -13,6 +13,7 @@
 #include <stern_attack/stern_algorithm.hpp>
 #include <stern_attack/new_stern_algorithm.hpp>
 #include <stern_attack/mmt_algorithm.hpp>
+#include <stern_attack/hash_mmt_algorithm.hpp>
 #include <stern_attack/fs-isd_algorithm.hpp>
 #include <utils/benchmark.hpp>
 #define assertm(exp, msg) assert(((void)msg, exp))
@@ -109,10 +110,16 @@ int main(int argc, const char** argv) {
         auto resultSternHash = DecodingBecnhmark(checkMatrix, syndrome, omega, NewSternAlgorithm(checkMatrix.ColumnsSize()));
         auto resultFS = DecodingBecnhmark(checkMatrix, syndrome, omega, FS_ISD_Algorithm(checkMatrix.ColumnsSize()));
         auto resultMMT = DecodingBecnhmark(checkMatrix, syndrome, omega, MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
+        auto resultMMTHash = DecodingBecnhmark(checkMatrix, syndrome, omega, MMTHashAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
 
         data["stern"][iteration] = {
             {"iterations_count", resultStern.numberOfIterations},
             {"duration", resultStern.duration},
+        };
+
+        data["stern_hash"][iteration] = {
+            {"iterations_count", resultSternHash.numberOfIterations},
+            {"duration", resultSternHash.duration},
         };
 
         data["FS_ISD"][iteration] = {
@@ -125,9 +132,9 @@ int main(int argc, const char** argv) {
             {"duration", resultMMT.duration},
         };
 
-        data["stern_hash"][iteration] = {
-            {"iterations_count", resultSternHash.numberOfIterations},
-            {"duration", resultSternHash.duration},
+        data["MMT_hash"][iteration] = {
+            {"iterations_count", resultMMTHash.numberOfIterations},
+            {"duration", resultMMTHash.duration},
         };
     }
 
@@ -141,13 +148,21 @@ int main(int argc, const char** argv) {
 
     data["stern_params"]["p"] = sternP;
     data["stern_params"]["l"] = sternL;
+    
     data["stern_hash_params"]["p"] = sternP;
     data["stern_hash_params"]["l"] = sternL;
+
     data["FS_ISD_params"]["p"] = fsP;
     data["FS_ISD_params"]["l"] = fsL;
+
     data["MMT_params"]["p"] = mmtP;
     data["MMT_params"]["l1"] = mmtL1;
     data["MMT_params"]["l2"] = mmtL2;
+
+    data["MMT_hash_params"]["p"] = mmtP;
+    data["MMT_hash_params"]["l1"] = mmtL1;
+    data["MMT_hash_params"]["l2"] = mmtL2;
+
 
     output << std::setw(4) << data << '\n';
 }

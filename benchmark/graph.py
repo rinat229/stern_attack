@@ -55,7 +55,7 @@ if __name__ == "__main__":
     with open(args.input_data) as f:
         data = json.load(f)
 
-    algs = ["stern", "MMT", "FS_ISD", "stern_hash"]
+    algs = ["stern", "MMT", "FS_ISD", "stern_hash", "MMT_hash"]
 
     d_iterations = {}
     d_duration = {}
