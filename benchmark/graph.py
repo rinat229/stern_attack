@@ -60,6 +60,7 @@ if __name__ == "__main__":
     d_iterations = {}
     d_duration = {}
     d_expected = {}
+    d_average_iteration = {}
 
     params = GetParams(data["params"])
 
@@ -77,16 +78,20 @@ if __name__ == "__main__":
         d_iterations[alg + "_average"] = np.mean(iterations)
         d_duration[alg + "_average"] = np.mean(durations)
         d_expected[alg] = params.get_expected(alg, data[alg + "_params"])
+        d_average_iteration[alg] = np.sum(durations) / np.sum(iterations)
 
     df_iters = pd.DataFrame({
         'algorithm': algs, 
         "average number of iterations": d_iterations.values(), 
-        "expected number of iterations": d_expected.values()
+        "expected number of iterations": d_expected.values(),
     })
-
     df_durs = pd.DataFrame({'algorithm': algs, "average time(ms)": d_duration.values()})
+    df_aver1iter = pd.DataFrame({
+        "average time of one iteration": d_average_iteration.values()
+    })
 
     ax_iters = df_iters.plot(kind='bar', x='algorithm')
     ax_durs = df_durs.plot(kind='bar', x='algorithm')
+    ax_aver1iter = df_aver1iter.plot(kind="bar", x='algorithm')
 
     plt.show()
