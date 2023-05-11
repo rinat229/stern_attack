@@ -9,6 +9,7 @@
 #include <execution>
 #include <numeric>
 #include <tuple>
+#include <vector>
 #include <unordered_map>
 
 #include <algebra/binary_matrix.hpp>
@@ -16,46 +17,18 @@
 #include <permutations/primitive_permutation_iterator.hpp>
 #include <permutations/random_permutation_iterator.hpp>
 #include "base_decoding.hpp"
+#include "mmt_algorithm.hpp"
 
 
-class MMTHashAlgorithm : public BaseAlgorithm {
-    static constexpr unsigned maxSizeOfProjSumOnLevel2 = 1000000;
-    unsigned p;
-    unsigned l1;
-    unsigned l2;
-    unsigned l;
-    std::size_t expectedLengthLevel1;
-    std::size_t expectedLengthLevel2;
-
+class MMTHashAlgorithm : public MMTAlgorithm {
 public:
-    constexpr static const char* algorithmName = "MMTHash";
-    mutable std::vector<std::size_t> lengthsL2;
-
-    void sizes(){
-        std::cout << "Expected length: " << expectedLengthLevel2 << '\n';
-        std::cout << "Length: " << (std::reduce(lengthsL2.begin(), lengthsL2.end()) / static_cast<float>(lengthsL2.size())) << '\n';
-    }
-
-    auto getParams() const {
-        return std::make_tuple(p, l1, l2, l);
-    }
-
     /**
-     * Creates an options object for MMT algorithm
+     * Creates an options object for MMT algorithm which uses unordered_map 
+     * for looking collisions 
      * @param cols number of columns in matrix, p initializes as 0.006 * cols (it's optimal parameter)
      * l1 as 0.028 * cols, l2 as 0.006 * cols
     */
-    MMTHashAlgorithm(unsigned cols, unsigned rows) : p(static_cast<unsigned>(0.002 * cols) > 0 ? 0.002 * cols : 1),
-                                                 l1(static_cast<unsigned>(0.028 * cols) > 0 ? 0.028 * cols : 1),
-                                                 l2(static_cast<unsigned>(0.006 * cols) > 0 ? 0.006 * cols : 1),
-                                                 l(l1 + l2) 
-    {
-        expectedLengthLevel1 = NumberOfCombinations((cols - rows + l) / 2, p);
-        expectedLengthLevel2 = std::min((expectedLengthLevel1 * expectedLengthLevel1) >> l2, std::size_t(1000000000));
-        expectedLengthLevel1 *= 2;
-        expectedLengthLevel2 *= 2;
-    }
-
+    MMTHashAlgorithm(unsigned cols, unsigned rows) : MMTAlgorithm(cols, rows) {}
 
     /**
      * Makes one step of information-set decoding to already permuted check matrix
@@ -75,9 +48,6 @@ public:
 
         unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
 
-        using IndexType = std::vector<unsigned>;
-        using CollisionType = std::pair<BinaryMatrix::BitContainerType, IndexType>;
-        
         auto combination = Combination(p, halfColsSizeOfQ);
         auto numberOfCombs = combination.GetNumberOfCombinations();
 
@@ -92,7 +62,7 @@ public:
         projectedSum22.reserve(expectedLengthLevel1);
 
         projectedSum1.reserve(expectedLengthLevel2);
-        // projectedSum2.reserve(expectedLengthLevel2);
+        projectedSum2.reserve(expectedLengthLevel2);
 
         boost::dynamic_bitset<> projectedSyndrome1 = Projection(syndrome, l1);
         boost::dynamic_bitset<> projectedSyndrome2 = Projection(syndrome, l, l1);
@@ -151,6 +121,10 @@ public:
                     }
                 }
 
+                if(projectedSum1.size() > expectedLengthLevel2) {
+                    break;
+                }
+
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
             }
@@ -184,6 +158,9 @@ public:
                     }
                 }
 
+                if(projectedSum2.size() > expectedLengthLevel2) {
+                    break;
+                }
 
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
