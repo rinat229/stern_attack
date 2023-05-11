@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import json
 from pprint import pprint
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentError, Action
 import numpy as np
 from math import comb
 import pandas as pd
@@ -49,15 +49,14 @@ if __name__ == "__main__":
     parser = ArgumentParser()
 
     parser.add_argument("input_data")
-    parser.add_argument("algs", action="append")
+    parser.add_argument("-a", "--algs", help="algs name", default="stern MMT FS_ISD stern_hash MMT_hash", required=False)
 
     args = parser.parse_args()
 
     with open(args.input_data) as f:
         data = json.load(f)
 
-    # algs = ["stern", "MMT", "FS_ISD", "stern_hash", "MMT_hash"]
-    algs = args.algs
+    algs = args.algs.split()
 
     d_iterations = {}
     d_duration = {}
@@ -89,6 +88,7 @@ if __name__ == "__main__":
     })
     df_durs = pd.DataFrame({'algorithm': algs, "average time(ms)": d_duration.values()})
     df_aver1iter = pd.DataFrame({
+        'algorithm': algs,
         "average time of one iteration": d_average_iteration.values()
     })
 
