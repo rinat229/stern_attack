@@ -1,7 +1,8 @@
 set(test_sets
-    "decoding_challenge_1041"
-    "decoding_challenge_381"
-    "decoding_challenge_640"
+"decoding_challenge_381"
+"decoding_challenge_640"
+"decoding_challenge_1041"
+"decoding_challenge_1409"
 )
 
 add_executable(example_cracking example_cracking.cpp)
