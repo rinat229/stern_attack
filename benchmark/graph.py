@@ -39,7 +39,7 @@ class GetParams:
             return self._get_expected_stern(params_optimized)
         if alg == "FS_ISD":
             return self._get_expected_fs_isd(params_optimized)
-        elif alg == "MMT":
+        elif alg == "MMT" or alg == "MMT_hash":
             return self._get_expected_mmt(params_optimized)
         else:
             raise ValueError(f"unknown alg {alg}")
@@ -49,13 +49,15 @@ if __name__ == "__main__":
     parser = ArgumentParser()
 
     parser.add_argument("input_data")
+    parser.add_argument("algs", action="append")
 
     args = parser.parse_args()
 
     with open(args.input_data) as f:
         data = json.load(f)
 
-    algs = ["stern", "MMT", "FS_ISD", "stern_hash"]
+    # algs = ["stern", "MMT", "FS_ISD", "stern_hash", "MMT_hash"]
+    algs = args.algs
 
     d_iterations = {}
     d_duration = {}
