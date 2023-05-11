@@ -9,6 +9,7 @@
 #include <algebra/binary_matrix.hpp>
 
 #include <stern_attack/mmt_algorithm.hpp>
+#include <stern_attack/hash_mmt_algorithm.hpp>
 #include <stern_attack/stern_algorithm.hpp>
 #include <stern_attack/information_set_decoding.hpp>
 
@@ -65,7 +66,7 @@ int main(int argc, char** argv) {
         return DecodingParallel(checkMatrix, syndrome, omega, algorithm, std::thread::hardware_concurrency());
     };
 
-    boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
+    boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(MMTHashAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize()));
     std::ofstream ofs(directory + "error_vector.txt");
     ofs << errorVectorFromMMT << '\n';
 

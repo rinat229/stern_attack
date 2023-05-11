@@ -8,6 +8,7 @@
 #include <stern_attack/information_set_decoding.hpp>
 #include <stern_attack/stern_algorithm.hpp>
 #include <stern_attack/mmt_algorithm.hpp>
+#include <stern_attack/hash_mmt_algorithm.hpp>
 #include <utils/benchmark.hpp>
 #include "helper.hpp"
 #include <chrono>
@@ -156,6 +157,9 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
 
         auto mmt = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
         boost::dynamic_bitset<> errorVectorFromMMT = launchAndBenchmark(mmt);
+
+        auto mmtHash = MMTHashAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
+        boost::dynamic_bitset<> errorVectorFromMMTHash = launchAndBenchmark(mmtHash);
         mmt.sizes();
 
         auto mmtp = MMTAlgorithm(checkMatrix.ColumnsSize(), checkMatrix.RowsSize());
@@ -164,6 +168,7 @@ BOOST_AUTO_TEST_CASE(InformationSetDecodingBig) {
         // BOOST_TEST(errorVector == errorVectorFromISD);
         // BOOST_TEST(errorVector == errorVectorFromStern);
         BOOST_TEST(errorVector == errorVectorFromMMT);
+        BOOST_TEST(errorVector == errorVectorFromMMTHash);
         BOOST_TEST(errorVector == errorVectorFromMMTParallel);
     }
 } 

@@ -19,14 +19,17 @@
 
 
 class MMTAlgorithm : public BaseAlgorithm {
-    static constexpr unsigned maxSizeOfProjSumOnLevel2 = 1000000;
+protected:
+    static constexpr std::size_t maxSizeOfProjSumOnLevel2 = 10000000;
     unsigned p;
     unsigned l1;
     unsigned l2;
     unsigned l;
     std::size_t expectedLengthLevel1;
     std::size_t expectedLengthLevel2;
-
+    using IndexType = std::vector<unsigned>;
+    using CollisionType = std::pair<BinaryMatrix::BitContainerType, IndexType>;
+        
 public:
     constexpr static const char* algorithmName = "MMT";
     mutable std::vector<std::size_t> lengthsL2;
@@ -48,13 +51,9 @@ public:
     MMTAlgorithm(unsigned cols, unsigned rows) : p(static_cast<unsigned>(0.002 * cols) > 0 ? 0.002 * cols : 1),
                                                  l1(static_cast<unsigned>(0.028 * cols) > 0 ? 0.028 * cols : 1),
                                                  l2(static_cast<unsigned>(0.006 * cols) > 0 ? 0.006 * cols : 1),
-                                                 l(l1 + l2) 
-    {
-        expectedLengthLevel1 = NumberOfCombinations((cols - rows + l) / 2, p);
-        expectedLengthLevel2 = std::min((expectedLengthLevel1 * expectedLengthLevel1) >> l2, std::size_t(1000000000));
-        expectedLengthLevel1 *= 2;
-        expectedLengthLevel2 *= 2;
-    }
+                                                 l(l1 + l2), expectedLengthLevel1(NumberOfCombinations((cols - rows + l) / 2, p)),
+                                                 expectedLengthLevel2(std::min((expectedLengthLevel1 * expectedLengthLevel1) >> l2, maxSizeOfProjSumOnLevel2) * 1.1)
+    {}
 
 
     /**
@@ -75,9 +74,6 @@ public:
 
         unsigned halfColsSizeOfQ = colsSizeOfQ / 2;
 
-        using IndexType = std::vector<unsigned>;
-        using CollisionType = std::pair<BinaryMatrix::BitContainerType, IndexType>;
-        
         auto combination = Combination(p, halfColsSizeOfQ);
         auto numberOfCombs = combination.GetNumberOfCombinations();
 
@@ -149,6 +145,10 @@ public:
                     }
                 }
 
+                if(projectedSum1.size() > expectedLengthLevel2) {
+                    break;
+                }
+
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
             }
@@ -182,7 +182,10 @@ public:
                     }
                 }
 
-
+                if(projectedSum2.size() > expectedLengthLevel2) {
+                    break;
+                }
+                
                 iter1 = iterEnd1;
                 iter2 = iterEnd2;
             }
